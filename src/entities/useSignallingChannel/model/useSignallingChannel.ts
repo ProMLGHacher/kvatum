@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { SignallingChannelState } from './types'
 import { useTokensData } from '@/entities/useTokensData'
+import { $baseURL } from '@/shared/api/api'
 
 export const useSignallingChannel = create<SignallingChannelState>((set, get) => ({
     signallingChannel: null,
@@ -8,11 +9,11 @@ export const useSignallingChannel = create<SignallingChannelState>((set, get) =>
     connect: async () => {
         set({ isLoading: true })
         try {
-            const signallingChannel = new WebSocket("https://8f5b-194-104-136-111.ngrok-free.app" + '/ws/rooms')
+            const signallingChannel = new WebSocket($baseURL + '/ws/rooms')
             signallingChannel.onopen = () => {
                 signallingChannel.send(JSON.stringify({
-                    eventType: 'token',
-                    eventBody: useTokensData.getState().accessToken
+                    "eventType": "token",
+                    "eventBody": useTokensData.getState().accessToken
                 }))
                 set({ signallingChannel })
             }
