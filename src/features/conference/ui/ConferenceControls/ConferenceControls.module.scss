@@ -1,0 +1,19 @@
+.conferenceControls {
+    position: fixed;
+
+    top: 0;
+    bottom: 0;
+    margin-block: auto;
+    margin-right: 10px;
+    height: fit-content;
+
+    padding: 20px;
+
+    z-index: 1000;
+
+    background-color: #00000050;
+}
+
+.video {
+    width: 100px;
+}
