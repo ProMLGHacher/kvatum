@@ -8,9 +8,14 @@ export const useMediaStream =
             stream: null,
             hasAudio: false,
             hasVideo: false,
-            getMediaStream: async (constraints: MediaStreamConstraints = { video: false, audio: true }) => {
-                const mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
-                set({ stream: mediaStream, hasAudio: mediaStream.getAudioTracks().length > 0, hasVideo: mediaStream.getVideoTracks().length > 0 })
+            getMediaStream: async (constraints: MediaStreamConstraints = { video: true, audio: true }) => {
+                try {
+                    console.log(navigator.mediaDevices);
+                    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
+                    set({ stream: mediaStream, hasAudio: mediaStream.getAudioTracks().length > 0, hasVideo: mediaStream.getVideoTracks().length > 0 })
+                } catch (error) {
+                    console.error(error)
+                }
             },
             muteAudio: () => set((state) => {
                 if (!state.hasAudio) return state

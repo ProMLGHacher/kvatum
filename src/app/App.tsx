@@ -14,7 +14,7 @@ export const App = () => {
 
   const [loading, setLoading] = useState(true)
 
-  const { accessToken } = useTokensData()
+  const { isAuthorized, accessToken, refreshToken } = useTokensData()
 
   useEffect(() => {
     const init = async () => {
@@ -29,17 +29,26 @@ export const App = () => {
   }, [])
 
   useEffect(() => {
-    if (!accessToken) return
+    if (!(accessToken && refreshToken)) return
     const init = async () => {
+      Promise.all([getJoinedHubsAction()]).catch((e) => {
+        console.error(e)
+      }).finally(() => setLoading(false))
       await useSignallingChannel.getState().connect()
       configureConferenceSignallingChannel()
-      Promise.all([getJoinedHubsAction()]).finally(() => setLoading(false))
+
     }
     init()
-  }, [accessToken])
+  }, [accessToken, refreshToken])
 
   if (loading) {
-    return <div style={{ color: 'white' }}>Гружу приложение...</div>
+    return <div style={{ color: 'white' }}>
+      <p>{JSON.stringify({
+        isAuthorized,
+        accessToken,
+        refreshToken,
+      })}</p>
+      Гружу приложение...</div>
   }
 
   return (

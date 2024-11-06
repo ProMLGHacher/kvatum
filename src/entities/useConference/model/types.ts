@@ -1,10 +1,10 @@
 
-export type ConferenceUser =  {
-    id: string
-    name: string
-    muted: boolean
-    camera: boolean
-    avatar: string
+export type ConferenceUser = {
+    Email: string
+    Id: string
+    Images: string[]
+    Nickname: string
+    Role: string
 }
 
 export type PeerConnection = {
@@ -22,7 +22,7 @@ export type ConferenceActions = {
     setPeerConnections: (peerConnection: PeerConnections) => void,
     removePeerConnection: (id: string) => void,
     addPeerConnection: (peerConnection: PeerConnection) => void,
-    setPeerConnectionStream: (id: string, stream: MediaStream | null) => void,
+    addPeerConnectionStreamTrack: (id: string, track: MediaStreamTrack) => void,
     clearPeerConnections: () => void,
     setUserVolume: (volume: number, id: string) => void,
     setUserMuted: (muted: boolean, id: string) => void,
@@ -31,7 +31,7 @@ export type ConferenceActions = {
     setPeerConnectionState: (id: string, newState: 'pending' | 'connected') => void,
 }
 
-export type Conference = { 
+export type Conference = {
     roomId: string | null,
-    peers: PeerConnections | null 
+    peers: PeerConnections | null
 } & ConferenceActions

@@ -5,18 +5,21 @@ import { $baseURL } from '@/shared/api/api'
 
 export const useSignallingChannel = create<SignallingChannelState>((set, get) => ({
     signallingChannel: null,
-    isLoading: false,
+    isLoading: true,
     connect: async () => {
         set({ isLoading: true })
         try {
             const signallingChannel = new WebSocket($baseURL + '/ws/rooms')
-            signallingChannel.onopen = () => {
-                signallingChannel.send(JSON.stringify({
-                    "eventType": "token",
-                    "eventBody": useTokensData.getState().accessToken
-                }))
-                set({ signallingChannel })
-            }
+            await new Promise((resolve) => {
+                signallingChannel.onopen = () => {
+                    signallingChannel.send(JSON.stringify({
+                        "eventType": "token",
+                        "eventBody": useTokensData.getState().accessToken
+                    }))
+                    set({ signallingChannel })
+                    resolve(true)
+                }
+            })
             signallingChannel.addEventListener('close', () => {
                 console.log('close')
                 set({ signallingChannel: null })

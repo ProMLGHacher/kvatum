@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { Conference } from "./types";
 
 
-export const useConference = create<Conference>(set => ({
+export const useConference = create<Conference>((set, get) => ({
     roomId: null,
     peers: null,
     setPeerConnections: (peerConnections) => set({ peers: peerConnections }),
@@ -15,10 +15,10 @@ export const useConference = create<Conference>(set => ({
         if (!state.peers) return { peers: { [peerConnection.id]: peerConnection } }
         return { peers: { ...state.peers, [peerConnection.id]: peerConnection } }
     }),
-    setPeerConnectionStream: (id, stream) => set(state => {
-        if (!state.peers) return { peers: null }
-        return { peers: { ...state.peers, [id]: { ...state.peers[id], stream } } }
-    }),
+    addPeerConnectionStreamTrack: (id, track) => {
+        if (!get().peers) return
+        get().peers![id].stream?.addTrack(track)
+    },
     clearPeerConnections: () => set({ peers: null }),
     setUserVolume: (volume, id) => set(state => {
         if (!state.peers) return { peers: null }
@@ -38,7 +38,7 @@ export const useConference = create<Conference>(set => ({
         return {
             peers: {
                 ...state.peers,
-                [id]: { ...state.peers[id], newState }
+                [id]: { ...state.peers[id], state: newState }
             }
         }
     }),

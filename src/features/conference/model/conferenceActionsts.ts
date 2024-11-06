@@ -37,7 +37,7 @@ export const connectToConferenceAction = async (id: string) => {
                 useSignallingChannel.getState().sendMessage({
                     eventType: "microState",
                     eventBody: {
-                        state: hasAudio
+                        State: hasAudio
                     }
                 })
             }
@@ -51,7 +51,7 @@ export const connectToConferenceAction = async (id: string) => {
                 useSignallingChannel.getState().sendMessage({
                     eventType: "cameraState",
                     eventBody: {
-                        state: hasVideo
+                        State: hasVideo
                     }
                 })
             }
@@ -61,31 +61,32 @@ export const connectToConferenceAction = async (id: string) => {
 }
 
 export const configureConferenceSignallingChannel = () => {
+    console.log('configureConferenceSignallingChannel');
     useSignallingChannel.getState().onMessage(message => {
-        switch (message.data.eventType) {
-            case 'UserList':    
-                handleUserListMessage(message.data.users as ConferenceUser[])
+        switch (message.EventType) {
+            case 'UsersList':
+                handleUserListMessage(message.Users as ConferenceUser[])
                 break
             case 'IceCandidate':
-                handleIceCandidateMessage(message.data.iceCandidate, message.data.from)
+                handleIceCandidateMessage(JSON.parse(message.IceCandidate), message.From.Id)
                 break
             case 'Offer':
-                handleOfferMessage(message.data.offer, message.data.user)
+                handleOfferMessage(JSON.parse(message.Offer), message.From as ConferenceUser)
                 break
             case 'Answer':
-                handleAnswerMessage(message.data.answer, message.data.from)
+                handleAnswerMessage(message.Answer, message.From.Id)
                 break
             case 'UpdateOffer':
-                handleUpdateOfferMessage(message.data.offer, message.data.from)
+                handleUpdateOfferMessage(message.Offer, message.From.Id)
                 break
             case 'UpdateAnswer':
-                handleUpdateAnswerMessage(message.data.answer, message.data.from)
+                handleUpdateAnswerMessage(message.Answer, message.From.Id)
                 break
             case 'MicroState':
-                handleMicroStateMessage(message.data.state, message.data.from)
+                handleMicroStateMessage(message.State, message.From.Id)
                 break
             case 'CameraState':
-                handleCameraStateMessage(message.data.state, message.data.from)
+                handleCameraStateMessage(message.State, message.From.Id)
                 break
         }
     })
@@ -119,9 +120,9 @@ const sendUpdateOffer = async (pc: RTCPeerConnection, id: string) => {
     useSignallingChannel.getState().sendMessage({
         "eventType": "UpdateOffer",
         "eventBody": {
-            "offer": offer,
-            "from": useUserData.getState().id,
-            "to": id
+            "Offer": offer,
+            "From": useUserData.getState().id,
+            "To": id
         }
     });
 }
@@ -135,9 +136,9 @@ const handleUserListMessage = (users: ConferenceUser[]) => {
 const makeCall = async (user: ConferenceUser) => {
     const pc = createPeerConnection(user)
     useConference.getState().addPeerConnection({
-        id: user.id,
+        id: user.Id,
         pc,
-        stream: null,
+        stream: new MediaStream(),
         volume: 100,
         user: user,
         state: 'pending'
@@ -152,9 +153,9 @@ const makeCall = async (user: ConferenceUser) => {
     useSignallingChannel.getState().sendMessage({
         "eventType": "Offer",
         "eventBody": {
-            "offer": offer,
-            "from": useUserData.getState().id,
-            "to": user.id
+            "Offer": offer,
+            "From": useUserData.getState().id,
+            "To": user.Id
         }
     })
 }
@@ -184,9 +185,9 @@ const onIceCandidate = (user: ConferenceUser) => (event: RTCPeerConnectionIceEve
         useSignallingChannel.getState().sendMessage({
             "eventType": "IceCandidate",
             "eventBody": {
-                "iceCandidate": candidate,
-                "from": useUserData.getState().id,
-                "to": user.id
+                "IceCandidate": candidate,
+                "From": useUserData.getState().id,
+                "To": user.Id
             }
         })
     }
@@ -194,12 +195,22 @@ const onIceCandidate = (user: ConferenceUser) => (event: RTCPeerConnectionIceEve
 
 // TODO: add remote stream to the state
 const onTrack = (user: ConferenceUser) => (event: RTCTrackEvent) => {
-    useConference.getState().setPeerConnectionStream(user.id, event.streams[0])
+    console.log('ON TRACK', user.Id);
+
+    console.log("АБОБУС", event);
+    
+    
+    useConference.getState().addPeerConnectionStreamTrack(user.Id, event.track)
+    console.log('ХУЙХУЙХУХЙУХЙХУЙХУХЙУХЙХУХЙХУХЙУ');
+    console.log(useConference.getState().peers);
+    
 }
 
 const handleConnectionStateChange = (pc: RTCPeerConnection, user: ConferenceUser) => () => {
+
     if (pc.connectionState === 'connected') {
-        useConference.getState().setPeerConnectionState(user.id, 'connected')
+        console.log("ХУЙХУЙХУХЙУХЙХУЙХУХЙУХЙХУХЙХУХЙУ", user.Id);
+        useConference.getState().setPeerConnectionState(user.Id, 'connected')
         // useSignallingChannel.getState().onMessage(handleUpdateOfferMessage(pc))
         // useSignallingChannel.getState().onMessage(handleUpdateAnswerMessage(pc))
         // useSignallingChannel.getState().onMessage(handleRemoveTrackMessage(pc))
@@ -208,6 +219,8 @@ const handleConnectionStateChange = (pc: RTCPeerConnection, user: ConferenceUser
 
 const handleIceCandidateMessage = (iceCandidate: RTCIceCandidate, from: string) => {
     try {
+        console.log(useConference.getState().peers);
+        
         useConference.getState().peers![from].pc.addIceCandidate(iceCandidate)
     } catch (e) {
         console.error('Error adding received ice candidate', e)
@@ -222,9 +235,9 @@ const handleUpdateOfferMessage = async (offer: RTCSessionDescriptionInit, from: 
         useSignallingChannel.getState().sendMessage({
             "eventType": "UpdateAnswer",
             "eventBody": {
-                "answer": answer,
-                "from": useUserData.getState().id,
-                "to": from
+                "UpdateAnswer": answer,
+                "From": useUserData.getState().id,
+                "To": from
             }
         })
     }
@@ -238,8 +251,13 @@ const handleUpdateAnswerMessage = async (answer: any, from: string) => {
 
 
 const handleAnswerMessage = async (answer: any, from: string) => {
-    if (answer) {
+    console.log(answer);
+    console.log(from);
+    
+    try {
         await useConference.getState().peers![from].pc.setRemoteDescription(new RTCSessionDescription(answer))
+    } catch (error) {
+        console.error('Error adding received answer', error);
     }
 }
 
@@ -247,6 +265,14 @@ const handleAnswerMessage = async (answer: any, from: string) => {
 const handleOfferMessage = async (offer: RTCSessionDescriptionInit, user: ConferenceUser) => {
     const peerConnection = createPeerConnection(user)
     configurePeerConnectionTracks(peerConnection)
+    useConference.getState().addPeerConnection({
+        id: user.Id,
+        pc: peerConnection,
+        stream: new MediaStream(),
+        volume: 100,
+        user: user,
+        state: 'pending'
+    })
 
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
     const answer = await peerConnection.createAnswer()
@@ -254,9 +280,9 @@ const handleOfferMessage = async (offer: RTCSessionDescriptionInit, user: Confer
     useSignallingChannel.getState().sendMessage({
         "eventType": "Answer",
         "eventBody": {
-            "answer": answer,
-            "from": useUserData.getState().id,
-            "to": user.id
+            "Answer": answer,
+            "From": useUserData.getState().id,
+            "To": user.Id
         }
     })
 }

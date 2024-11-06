@@ -25,8 +25,8 @@ export const LoginPage = () => {
     return (
         <div className={cls.loginPage}>
             <form className={cls.loginForm} onSubmit={handleSubmit}>
-                <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <Input type="email" placeholder="Email" autoFocus autoComplete='email' value={email} onChange={(e) => setEmail(e.target.value)} />
+                <Input type="password" placeholder="Password" autoComplete='current-password' value={password} onChange={(e) => setPassword(e.target.value)} />
                 <Button type="submit" full rounded='sm'>Login</Button>
                 {error && <div className={cls.error}>{error}</div>}
             </form>

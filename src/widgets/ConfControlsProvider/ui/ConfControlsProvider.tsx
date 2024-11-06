@@ -2,6 +2,7 @@ import cls from './ConfControlsProvider.module.scss'
 import { createPortal } from 'react-dom'
 import { ConferenceControls } from '@/features/conference/ui/ConferenceControls/ConferenceControls'
 import { useState } from 'react'
+import { useTokensData } from '@/entities/useTokensData'
 
 interface ConfControlsProviderProps {
     children: React.ReactNode
@@ -9,6 +10,9 @@ interface ConfControlsProviderProps {
 
 export const ConfControlsProvider = ({ children }: ConfControlsProviderProps) => {
     const [opened, setOpened] = useState(false)
+    const { isAuthorized } = useTokensData()
+
+    if (!isAuthorized) return children
 
     return <>
         {createPortal(<ConferenceControls opened={opened} onClose={() => setOpened(false)} />, document.body)}

@@ -8,17 +8,11 @@ import { useWorkSpace } from '@/entities/useWorkSpcae'
 
 export const WorkSpacePage = () => {
 
-    const { hubId, workspaceId } = useParams()
+    const { workspaceId } = useParams()
     const { currentHub } = useHubs()
     const { currentWorkSpace } = useWorkSpace()
 
     const navigate = useNavigate()
-
-    useEffect(() => {
-        if (hubId) {
-            setCurrentHubAction(hubId as HubId)
-        }
-    }, [hubId])
 
     useEffect(() => {
         if (currentWorkSpace && !workspaceId) {
