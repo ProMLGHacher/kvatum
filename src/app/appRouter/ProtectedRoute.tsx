@@ -1,6 +1,6 @@
 // ProtectedRoute.tsx
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { UserRole, useUserData } from '@/entities/useUserData';
 
 interface ProtectedRouteProps {
@@ -11,7 +11,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ element, roles, redirect = '/main' }: ProtectedRouteProps) => {
-
+    const [searchParams] = useSearchParams()
+    const redirectParam = searchParams.get('redirect')
+    
+    redirect = redirectParam || redirect
     const { role } = useUserData()
 
     if (!role) {

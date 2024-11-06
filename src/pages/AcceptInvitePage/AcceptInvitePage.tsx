@@ -1,11 +1,17 @@
+import { useTokensData } from "@/entities/useTokensData"
 import { acceptInviteAction } from "@/features/hubs/model/acceptInvite/acceptInvite"
 import Button from "@/shared/ui/Button/Button"
-import { useNavigate, useParams } from "react-router-dom"
+import { Navigate, useNavigate, useParams } from "react-router-dom"
 
 export const AcceptInvitePage = () => {
-    const { inviteHash } = useParams()
 
+    const { inviteHash } = useParams()
+    const { accessToken, refreshToken } = useTokensData()
     const navigate = useNavigate()
+
+    if (!accessToken || !refreshToken) {
+        return <Navigate to={`/login?redirect=/invite/${inviteHash}`} />
+    }
 
     if (!inviteHash) {
         return <div>Неверная ссылка</div>
