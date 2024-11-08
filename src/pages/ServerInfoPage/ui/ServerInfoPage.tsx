@@ -9,7 +9,7 @@ import Button from '@/shared/ui/Button/Button';
 import { BsLayoutTextWindow, BsLayoutTextWindowReverse } from 'react-icons/bs';
 
 export const ServerInfoPage = () => {
-
+    
     const { channelId } = useParams()
     const { currentHub } = useHubs()
     const { currentWorkSpace } = useWorkSpace()
@@ -31,8 +31,8 @@ export const ServerInfoPage = () => {
                         gap: '10px',
                         alignItems: 'center'
                     }} className={cls.serverInfoHeaderButtons}>
-                        <Button style={{ opacity: chatIsOpen ? 1 : 0.5 }} onClick={() => setChatIsOpen(!chatIsOpen)}><BsLayoutTextWindowReverse /></Button>
-                        <Button style={{ opacity: conferenceIsOpen ? 1 : 0.5 }} onClick={() => setConferenceIsOpen(!conferenceIsOpen)}><BsLayoutTextWindow /></Button>
+                        <Button style={{ opacity: conferenceIsOpen ? 1 : 0.5 }} onClick={() => setConferenceIsOpen(!conferenceIsOpen)}><BsLayoutTextWindowReverse /></Button>
+                        <Button style={{ opacity: chatIsOpen ? 1 : 0.5 }} onClick={() => setChatIsOpen(!chatIsOpen)}><BsLayoutTextWindow /></Button>
                     </div>
                 }
 

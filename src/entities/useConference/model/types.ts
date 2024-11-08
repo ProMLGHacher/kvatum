@@ -1,10 +1,12 @@
 
 export type ConferenceUser = {
-    Email: string
-    Id: string
-    Images: string[]
-    Nickname: string
-    Role: string
+    email: string
+    id: string
+    images: string[]
+    nickname: string
+    role: string
+    isMicroMuted: boolean
+    hasVideo: boolean
 }
 
 export type PeerConnection = {
@@ -28,6 +30,7 @@ export type ConferenceActions = {
     setUserMuted: (muted: boolean, id: string) => void,
     setUserCamera: (camera: boolean, id: string) => void,
     setRoomId: (roomId: string) => void,
+    disconnectFromConference: () => void,
     setPeerConnectionState: (id: string, newState: 'pending' | 'connected') => void,
 }
 

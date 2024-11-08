@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { SignallingChannelState } from './types'
 import { useTokensData } from '@/entities/useTokensData'
 import { $baseURL } from '@/shared/api/api'
+import { websocketPinger } from '@/shared/lib/websocketPinger/websocketPinger'
 
 export const useSignallingChannel = create<SignallingChannelState>((set, get) => ({
     signallingChannel: null,
@@ -10,18 +11,21 @@ export const useSignallingChannel = create<SignallingChannelState>((set, get) =>
         set({ isLoading: true })
         try {
             const signallingChannel = new WebSocket($baseURL + '/ws/rooms')
+            const controller = new AbortController()
             await new Promise((resolve) => {
                 signallingChannel.onopen = () => {
                     signallingChannel.send(JSON.stringify({
-                        "eventType": "token",
+                        "eventType": "Token",
                         "eventBody": useTokensData.getState().accessToken
                     }))
+                    // websocketPinger(signallingChannel, controller)
                     set({ signallingChannel })
                     resolve(true)
                 }
             })
             signallingChannel.addEventListener('close', () => {
                 console.log('close')
+                controller.abort()
                 set({ signallingChannel: null })
             })
         } catch (error) {

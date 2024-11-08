@@ -68,7 +68,7 @@ export const routes: Route[] = [
     },
     {
         path: '/login',
-        element: <LoginPage />,
+    element: <LoginPage />,
         redirect: '/main',
         roles: [UserRole.GUEST]
     }

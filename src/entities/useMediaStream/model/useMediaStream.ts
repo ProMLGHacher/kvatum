@@ -8,7 +8,7 @@ export const useMediaStream =
             stream: null,
             hasAudio: false,
             hasVideo: false,
-            getMediaStream: async (constraints: MediaStreamConstraints = { video: true, audio: true }) => {
+            getMediaStream: async (constraints: MediaStreamConstraints = { video: false, audio: true }) => {
                 try {
                     console.log(navigator.mediaDevices);
                     const mediaStream = await navigator.mediaDevices.getUserMedia(constraints)

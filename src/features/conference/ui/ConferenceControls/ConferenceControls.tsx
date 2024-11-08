@@ -4,6 +4,9 @@ import { useMediaStream } from '@/entities/useMediaStream'
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { BiCamera, BiCameraOff, BiExit, BiMicrophone, BiMicrophoneOff } from 'react-icons/bi'
+import { disconnectFromConferenceAction, switchConferenceCameraAction, switchConferenceMicroAction } from '../../model/conferenceActionsts'
+
+
 interface ConferenceControlsProps {
     opened: boolean
     onClose: () => void
@@ -11,7 +14,7 @@ interface ConferenceControlsProps {
 
 export const ConferenceControls = ({ opened, onClose }: ConferenceControlsProps) => {
 
-    const { stream, hasAudio, hasVideo, muteAudio, startVideo, stopVideo, unmuteAudio, stopMediaStream } = useMediaStream()
+    const { stream, hasAudio, hasVideo } = useMediaStream()
 
     const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -28,13 +31,13 @@ export const ConferenceControls = ({ opened, onClose }: ConferenceControlsProps)
             animate={{ right: opened ? 0 : '-400px' }}
             className={cls.conferenceControls}
         >
-            <Button onClick={hasAudio ? muteAudio : unmuteAudio}>
+            <Button onClick={switchConferenceMicroAction}>
                 {hasAudio ? <BiMicrophone /> : <BiMicrophoneOff />}
             </Button>
-            <Button onClick={hasVideo ? stopVideo : startVideo}>
+            <Button onClick={switchConferenceCameraAction}>
                 {hasVideo ? <BiCamera /> : <BiCameraOff />}
             </Button>
-            <Button onClick={stopMediaStream}>
+            <Button onClick={disconnectFromConferenceAction}>
                 <BiExit />
             </Button>
             {hasVideo && <video className={cls.video} ref={videoRef} autoPlay muted></video>}

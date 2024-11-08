@@ -42,4 +42,13 @@ export const useConference = create<Conference>((set, get) => ({
             }
         }
     }),
+    disconnectFromConference: () => {
+        const peers = get().peers
+        if (!peers) return
+        Object.values(peers).forEach(peer => {
+            peer.pc.close()
+        })
+        set({ peers: null })
+        set({ roomId: null })
+    }
 }))

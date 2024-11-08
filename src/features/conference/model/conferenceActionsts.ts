@@ -29,67 +29,87 @@ export const connectToConferenceAction = async (id: string) => {
             }
         }
     )
+}
 
-    useMediaStream.subscribe(
-        state => state.hasAudio,
-        (hasAudio, prevHasAudio) => {
-            if (hasAudio !== prevHasAudio) {
-                useSignallingChannel.getState().sendMessage({
-                    eventType: "microState",
-                    eventBody: {
-                        State: hasAudio
-                    }
-                })
-            }
-        }
-    )
+export const switchConferenceMicroAction = () => {
+    const { hasAudio, muteAudio, unmuteAudio } = useMediaStream.getState()
+    if (hasAudio) {
+        muteAudio()
+        useSignallingChannel.getState().sendMessage({
+            eventType: "ChangeMicroState",
+            eventBody: false
+        })
+    } else {
+        unmuteAudio()
+        useSignallingChannel.getState().sendMessage({
+            eventType: "ChangeMicroState",
+            eventBody: true
+        })
+    }
+}
 
-    useMediaStream.subscribe(
-        state => state.hasVideo,
-        (hasVideo, prevHasVideo) => {
-            if (hasVideo !== prevHasVideo) {
-                useSignallingChannel.getState().sendMessage({
-                    eventType: "cameraState",
-                    eventBody: {
-                        State: hasVideo
-                    }
-                })
-            }
-        }
-    )
+export const switchConferenceCameraAction = () => {
+    const { hasVideo, startVideo, stopVideo } = useMediaStream.getState()
+    if (hasVideo) {
+        stopVideo()
+        useSignallingChannel.getState().sendMessage({
+            eventType: "ChangeVideoState",
+            eventBody: false
+        })
+    } else {
+        startVideo()
+        useSignallingChannel.getState().sendMessage({
+            eventType: "ChangeVideoState",
+            eventBody: true
+        })
+    }
+}
 
+export const disconnectFromConferenceAction = () => {
+    useConference.getState().disconnectFromConference()
+    useMediaStream.getState().stopMediaStream()
+    useSignallingChannel.getState().sendMessage({
+        eventType: "Disconnect"
+    })
 }
 
 export const configureConferenceSignallingChannel = () => {
     console.log('configureConferenceSignallingChannel');
     useSignallingChannel.getState().onMessage(message => {
-        switch (message.EventType) {
-            case 'UsersList':
-                handleUserListMessage(message.Users as ConferenceUser[])
+        switch (message.eventType) {
+            case 'UserList':
+                handleUserListMessage(message.users as ConferenceUser[])
                 break
             case 'IceCandidate':
-                handleIceCandidateMessage(JSON.parse(message.IceCandidate), message.From.Id)
+                handleIceCandidateMessage(message.iceCandidate, message.from.id)
                 break
             case 'Offer':
-                handleOfferMessage(JSON.parse(message.Offer), message.From as ConferenceUser)
+                handleOfferMessage(message.offer, message.from as ConferenceUser)
                 break
             case 'Answer':
-                handleAnswerMessage(message.Answer, message.From.Id)
+                handleAnswerMessage(message.answer, message.from.id)
                 break
             case 'UpdateOffer':
-                handleUpdateOfferMessage(message.Offer, message.From.Id)
+                handleUpdateOfferMessage(message.offer, message.from.id)
                 break
             case 'UpdateAnswer':
-                handleUpdateAnswerMessage(message.Answer, message.From.Id)
+                handleUpdateAnswerMessage(message.answer, message.from.id)
                 break
-            case 'MicroState':
-                handleMicroStateMessage(message.State, message.From.Id)
+            case 'ChangeMicroState':
+                handleMicroStateMessage(message.isMicroMuted, message.from)
                 break
-            case 'CameraState':
-                handleCameraStateMessage(message.State, message.From.Id)
+            case 'ChangeVideoState':
+                handleCameraStateMessage(message.hasVideo, message.from)
+                break
+            case 'Disconnect':
+                handleDisconnectMessage(message.from)
                 break
         }
     })
+}
+
+const handleDisconnectMessage = (from: string) => {
+    useConference.getState().removePeerConnection(from)
 }
 
 const handleMicroStateMessage = (state: boolean, from: string) => {
@@ -120,9 +140,9 @@ const sendUpdateOffer = async (pc: RTCPeerConnection, id: string) => {
     useSignallingChannel.getState().sendMessage({
         "eventType": "UpdateOffer",
         "eventBody": {
-            "Offer": offer,
-            "From": useUserData.getState().id,
-            "To": id
+            "offer": offer,
+            "from": useUserData.getState().id,
+            "to": id
         }
     });
 }
@@ -136,7 +156,7 @@ const handleUserListMessage = (users: ConferenceUser[]) => {
 const makeCall = async (user: ConferenceUser) => {
     const pc = createPeerConnection(user)
     useConference.getState().addPeerConnection({
-        id: user.Id,
+        id: user.id,
         pc,
         stream: new MediaStream(),
         volume: 100,
@@ -153,9 +173,9 @@ const makeCall = async (user: ConferenceUser) => {
     useSignallingChannel.getState().sendMessage({
         "eventType": "Offer",
         "eventBody": {
-            "Offer": offer,
-            "From": useUserData.getState().id,
-            "To": user.Id
+            "offer": offer,
+            "from": useUserData.getState().id,
+            "to": user.id
         }
     })
 }
@@ -185,9 +205,9 @@ const onIceCandidate = (user: ConferenceUser) => (event: RTCPeerConnectionIceEve
         useSignallingChannel.getState().sendMessage({
             "eventType": "IceCandidate",
             "eventBody": {
-                "IceCandidate": candidate,
-                "From": useUserData.getState().id,
-                "To": user.Id
+                "iceCandidate": candidate,
+                "from": useUserData.getState().id,
+                "to": user.id
             }
         })
     }
@@ -195,12 +215,12 @@ const onIceCandidate = (user: ConferenceUser) => (event: RTCPeerConnectionIceEve
 
 // TODO: add remote stream to the state
 const onTrack = (user: ConferenceUser) => (event: RTCTrackEvent) => {
-    console.log('ON TRACK', user.Id);
+    console.log('ON TRACK', user.id);
 
     console.log("АБОБУС", event);
     
     
-    useConference.getState().addPeerConnectionStreamTrack(user.Id, event.track)
+    useConference.getState().addPeerConnectionStreamTrack(user.id, event.track)
     console.log('ХУЙХУЙХУХЙУХЙХУЙХУХЙУХЙХУХЙХУХЙУ');
     console.log(useConference.getState().peers);
     
@@ -209,8 +229,8 @@ const onTrack = (user: ConferenceUser) => (event: RTCTrackEvent) => {
 const handleConnectionStateChange = (pc: RTCPeerConnection, user: ConferenceUser) => () => {
 
     if (pc.connectionState === 'connected') {
-        console.log("ХУЙХУЙХУХЙУХЙХУЙХУХЙУХЙХУХЙХУХЙУ", user.Id);
-        useConference.getState().setPeerConnectionState(user.Id, 'connected')
+        console.log("ХУЙХУЙХУХЙУХЙХУЙХУХЙУХЙХУХЙХУХЙУ", user.id);
+        useConference.getState().setPeerConnectionState(user.id, 'connected')
         // useSignallingChannel.getState().onMessage(handleUpdateOfferMessage(pc))
         // useSignallingChannel.getState().onMessage(handleUpdateAnswerMessage(pc))
         // useSignallingChannel.getState().onMessage(handleRemoveTrackMessage(pc))
@@ -235,7 +255,7 @@ const handleUpdateOfferMessage = async (offer: RTCSessionDescriptionInit, from: 
         useSignallingChannel.getState().sendMessage({
             "eventType": "UpdateAnswer",
             "eventBody": {
-                "UpdateAnswer": answer,
+                "answer": answer,
                 "From": useUserData.getState().id,
                 "To": from
             }
@@ -266,7 +286,7 @@ const handleOfferMessage = async (offer: RTCSessionDescriptionInit, user: Confer
     const peerConnection = createPeerConnection(user)
     configurePeerConnectionTracks(peerConnection)
     useConference.getState().addPeerConnection({
-        id: user.Id,
+        id: user.id,
         pc: peerConnection,
         stream: new MediaStream(),
         volume: 100,
@@ -282,7 +302,7 @@ const handleOfferMessage = async (offer: RTCSessionDescriptionInit, user: Confer
         "eventBody": {
             "Answer": answer,
             "From": useUserData.getState().id,
-            "To": user.Id
+            "To": user.id
         }
     })
 }
