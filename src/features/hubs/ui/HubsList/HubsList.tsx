@@ -5,6 +5,7 @@ import { useHubs } from '@/entities/useHub'
 import { CreateHubButton } from '../CreateHubButton/CreateHubButton'
 import { useContextMenu } from '@/entities/useContextMenu'
 import { createHubInvite } from '../../model/createHubInvite/createHubInvite'
+import { setCurrentHubAction } from '../../model/setCurrentHub/setCurrentHub'
 
 export const HubsList = () => {
 
@@ -18,6 +19,7 @@ export const HubsList = () => {
                 hubsList?.map((hub) => (
                     <NavLink
                         to={`/main/hubs/${hub.id}`}
+                        onClick={() => setCurrentHubAction(hub.id)}
                         title={hub.name}
                         key={hub.id}
                         onContextMenu={(e) => {

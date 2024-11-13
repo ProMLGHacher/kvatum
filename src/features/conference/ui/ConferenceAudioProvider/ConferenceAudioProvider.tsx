@@ -22,8 +22,6 @@ export const ConferenceAudioProvider = ({ children }: { children: React.ReactNod
             if (peer.state !== 'connected') return
             peer.stream?.getAudioTracks().forEach(track => {
                 stream.addTrack(track)
-                console.log(track);
-
             })
         })
 

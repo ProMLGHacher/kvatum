@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kvatum AI Logo Generator</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #0077b6;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+    }
+    p {
+      font-size: 18px;
+      text-align: center;
+      max-width: 400px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <p>Click the button below to open a free AI image generator. Describe your logo concept for the "Kvatum" application there and get a unique logo generated for you.</p>
+  <button onclick="openGenerator()">Open Free AI Logo Generator</button>
+
+  <script>
+    function openGenerator() {
+      // Opening a new tab with a free AI generator service like Gerwin or Fabula AI
+      window.open('https://fusionbrain.ai/', '_blank');
+    }
+  </script>
+</body>
+</html>

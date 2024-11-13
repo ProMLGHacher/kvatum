@@ -16,12 +16,14 @@ export const WorkSpacePage = () => {
 
     useEffect(() => {
         if (currentWorkSpace && !workspaceId) {
+            console.log(currentHub?.id, currentWorkSpace?.id);
             navigate(`/main/hubs/${currentHub?.id}/${currentWorkSpace?.id}`)
         }
     }, [currentWorkSpace])
 
 
     if (!currentHub) {
+        console.log(currentHub);
         return <Navigate to='/main' />
     }
 

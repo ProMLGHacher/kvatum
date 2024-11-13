@@ -36,5 +36,6 @@ export type ConferenceActions = {
 
 export type Conference = {
     roomId: string | null,
-    peers: PeerConnections | null
+    peers: PeerConnections | null,
+    mediaStreamState: Map<string, { hasAudio: boolean, hasVideo: boolean }>
 } & ConferenceActions

@@ -7,13 +7,7 @@ export const HubsPage = () => {
 
     // const { hubsList } = useHubs()
     const { hubId } = useParams()
-
-    useEffect(() => {
-        if (hubId) {
-            setCurrentHubAction(hubId as HubId)
-        }
-    }, [hubId])
-
+    
     if (!hubId) {
         return <div>HubsPage</div>
     }

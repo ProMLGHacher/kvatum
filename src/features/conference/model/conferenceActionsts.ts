@@ -218,12 +218,12 @@ const onTrack = (user: ConferenceUser) => (event: RTCTrackEvent) => {
     console.log('ON TRACK', user.id);
 
     console.log("АБОБУС", event);
-    
-    
+
+
     useConference.getState().addPeerConnectionStreamTrack(user.id, event.track)
     console.log('ХУЙХУЙХУХЙУХЙХУЙХУХЙУХЙХУХЙХУХЙУ');
     console.log(useConference.getState().peers);
-    
+
 }
 
 const handleConnectionStateChange = (pc: RTCPeerConnection, user: ConferenceUser) => () => {
@@ -240,7 +240,7 @@ const handleConnectionStateChange = (pc: RTCPeerConnection, user: ConferenceUser
 const handleIceCandidateMessage = (iceCandidate: RTCIceCandidate, from: string) => {
     try {
         console.log(useConference.getState().peers);
-        
+
         useConference.getState().peers![from].pc.addIceCandidate(iceCandidate)
     } catch (e) {
         console.error('Error adding received ice candidate', e)
@@ -273,7 +273,7 @@ const handleUpdateAnswerMessage = async (answer: any, from: string) => {
 const handleAnswerMessage = async (answer: any, from: string) => {
     console.log(answer);
     console.log(from);
-    
+
     try {
         await useConference.getState().peers![from].pc.setRemoteDescription(new RTCSessionDescription(answer))
     } catch (error) {
