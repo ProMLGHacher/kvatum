@@ -5,11 +5,13 @@ import { Conference } from "./types";
 export const useConference = create<Conference>((set, get) => ({
     roomId: null,
     peers: null,
-    mediaStreamState: new Map(),
+    microState: {},
+    videoState: {},
     setPeerConnections: (peerConnections) => {
         set({ peers: peerConnections })
         Object.entries(peerConnections).forEach(([id, peer]) => {
-            get().mediaStreamState.set(id, { hasAudio: !peer.user.isMicroMuted, hasVideo: peer.user.hasVideo })
+            get().microState[id] = !peer.user.isMicroMuted
+            get().videoState[id] = peer.user.hasVideo
         })
     },
     removePeerConnection: (id) => {
@@ -24,25 +26,53 @@ export const useConference = create<Conference>((set, get) => ({
             if (!state.peers) return { peers: { [peerConnection.id]: peerConnection } }
             return { peers: { ...state.peers, [peerConnection.id]: peerConnection } }
         })
-        get().mediaStreamState.set(peerConnection.id, { hasAudio: !peerConnection.user.isMicroMuted, hasVideo: peerConnection.user.hasVideo })
+        get().microState[peerConnection.id] = !peerConnection.user.isMicroMuted
+        get().videoState[peerConnection.id] = peerConnection.user.hasVideo
     },
-    addPeerConnectionStreamTrack: (id, track) => {
+    setPeerConnectionAudioTrack: (id, track) => {
         if (!get().peers) return
-        get().peers![id].stream?.addTrack(track)
+        set(state => {
+            return {
+                peers: { ...state.peers, [id]: { ...state.peers![id], audioTrack: track } }
+            }
+        })
+    },
+    setPeerConnectionVideoTrack: (id, track) => {
+        if (!get().peers) return
+        set(state => {
+            return {
+                peers: { ...state.peers, [id]: { ...state.peers![id], videoTrack: track } }
+            }
+        })
     },
     clearPeerConnections: () => {
         set({ peers: null })
-        get().mediaStreamState.clear()
+        set({ microState: {}, videoState: {} })
     },
     setUserVolume: (volume, id) => set(state => {
         if (!state.peers) return { peers: null }
         return { peers: { ...state.peers, [id]: { ...state.peers[id], volume } } }
     }),
     setUserMuted: (muted, id) => {
-        get().mediaStreamState.set(id, { hasAudio: !muted, hasVideo: get().mediaStreamState.get(id)?.hasVideo || false })
+        if (!get().peers) return
+        set(state => {
+            return { microState: { ...state.microState, [id]: !muted } }
+        })
     },
     setUserCamera: (camera, id) => {
-        get().mediaStreamState.set(id, { hasAudio: get().mediaStreamState.get(id)?.hasAudio || false, hasVideo: camera })
+        if (!get().peers) return
+        if (camera) {
+            set(state => {
+                return { videoState: { ...state.videoState, [id]: camera } }
+            })
+        } else {
+            set(state => {
+                return {
+                    peers: { ...state.peers, [id]: { ...state.peers![id], videoTrack: null } },
+                    videoState: { ...state.videoState, [id]: camera }
+                }
+            })
+        }
     },
     setRoomId: (roomId) => set({ roomId }),
     setPeerConnectionState: (id: string, newState: 'pending' | 'connected') => set(state => {

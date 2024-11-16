@@ -5,47 +5,42 @@ import { MediaStreamState } from './types'
 export const useMediaStream =
     create<MediaStreamState>()(
         subscribeWithSelector((set, get) => ({
-            stream: null,
-            hasAudio: false,
-            hasVideo: false,
-            getMediaStream: async (constraints: MediaStreamConstraints = { video: false, audio: true }) => {
+            stream: new MediaStream(),
+            audio: false,
+            video: false,
+            getMediaStream: async () => {
                 try {
-                    console.log(navigator.mediaDevices);
-                    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
-                    set({ stream: mediaStream, hasAudio: mediaStream.getAudioTracks().length > 0, hasVideo: mediaStream.getVideoTracks().length > 0 })
+                    const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: get().video })
+                    mediaStream?.getAudioTracks().forEach(track => track.enabled = get().audio)
+                    mediaStream?.getTracks().forEach(track => get().stream?.addTrack(track))
                 } catch (error) {
                     console.error(error)
                 }
             },
-            muteAudio: () => set((state) => {
-                if (!state.hasAudio) return state
-                state.stream?.getAudioTracks().forEach((track) => track.enabled = false)
-                return { hasAudio: false }
-            }),
-            unmuteAudio: () => set((state) => {
-                if (state.hasAudio) return state
-                state.stream?.getAudioTracks().forEach((track) => track.enabled = true)
-                return { hasAudio: true }
-            }),
-            stopVideo: async () => {
-                if (get().hasVideo) {
-                    get().stream?.getVideoTracks().forEach(track => track.stop())
-                    set({ hasVideo: false })
-                }
+            switchAudio: () => {
+                get().stream?.getAudioTracks().forEach(track => track.enabled = !get().audio)
+                set(state => ({ audio: !state.audio }))
             },
-            startVideo: async () => {
-                if (!get().hasVideo) {
-                    get().stream?.getTracks().forEach(track => track.stop())
-
-                    const constraints = { video: true, audio: true }
-                    const mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
-
-                    set({ stream: mediaStream, hasAudio: mediaStream.getAudioTracks().length > 0, hasVideo: mediaStream.getVideoTracks().length > 0 })
+            switchVideo: async () => {
+                if (!get().stream) return
+                if (get().video) {
+                    get().stream?.getVideoTracks().forEach(track => {
+                        track.stop()
+                        get().stream?.removeTrack(track)
+                    })
+                    set({ video: false })
+                } else {
+                    const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true })
+                    mediaStream.getVideoTracks().forEach(track => get().stream?.addTrack(track))
+                    set({ video: true })
                 }
             },
             stopMediaStream: async () => {
-                get().stream?.getTracks().forEach(track => track.stop())
-                set({ stream: null, hasAudio: false, hasVideo: false })
+                get().stream?.getTracks().forEach(track => {
+                    track.stop()
+                    get().stream?.removeTrack(track)
+                })
+                set({ stream: new MediaStream() })
             }
         }))
     )

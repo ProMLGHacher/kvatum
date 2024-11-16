@@ -20,9 +20,8 @@ export const ConferenceAudioProvider = ({ children }: { children: React.ReactNod
 
         Object.values(peers).forEach(peer => {
             if (peer.state !== 'connected') return
-            peer.stream?.getAudioTracks().forEach(track => {
-                stream.addTrack(track)
-            })
+            if (!peer.audioTrack) return
+            stream.addTrack(peer.audioTrack)
         })
 
         audio.srcObject = stream
@@ -31,16 +30,8 @@ export const ConferenceAudioProvider = ({ children }: { children: React.ReactNod
         return () => {
             audio.pause()
             audio.srcObject = null
-            stream.getTracks().forEach(track => {
-                track.stop()
-                stream.removeTrack(track)
-            })
         }
     }, [peers])
 
-    return (
-        <>
-            {children}
-        </>
-    )
+    return children
 }

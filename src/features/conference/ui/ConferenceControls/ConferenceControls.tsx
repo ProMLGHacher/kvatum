@@ -4,7 +4,8 @@ import { useMediaStream } from '@/entities/useMediaStream'
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { BiCamera, BiCameraOff, BiExit, BiMicrophone, BiMicrophoneOff } from 'react-icons/bi'
-import { disconnectFromConferenceAction, switchConferenceCameraAction, switchConferenceMicroAction } from '../../model/conferenceActionsts'
+import { disconnectFromConferenceAction } from '../../model/conferenceActionsts'
+import { classNames } from '@/shared/lib/classNames/classNames'
 
 
 interface ConferenceControlsProps {
@@ -14,15 +15,16 @@ interface ConferenceControlsProps {
 
 export const ConferenceControls = ({ opened, onClose }: ConferenceControlsProps) => {
 
-    const { stream, hasAudio, hasVideo } = useMediaStream()
+    const { stream, audio, video, switchVideo, switchAudio, getMediaStream } = useMediaStream()
 
     const videoRef = useRef<HTMLVideoElement>(null)
 
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.srcObject = stream
+            videoRef.current.play()
         }
-    }, [stream])
+    }, [video])
 
     return (
         <motion.div
@@ -31,16 +33,19 @@ export const ConferenceControls = ({ opened, onClose }: ConferenceControlsProps)
             animate={{ right: opened ? 0 : '-400px' }}
             className={cls.conferenceControls}
         >
-            <Button onClick={switchConferenceMicroAction}>
-                {hasAudio ? <BiMicrophone /> : <BiMicrophoneOff />}
+            <Button onClick={getMediaStream}>
+                <BiMicrophone />
             </Button>
-            <Button onClick={switchConferenceCameraAction}>
-                {hasVideo ? <BiCamera /> : <BiCameraOff />}
+            <Button onClick={switchAudio}>
+                {audio ? <BiMicrophone /> : <BiMicrophoneOff />}
+            </Button>
+            <Button onClick={switchVideo}>
+                {video ? <BiCamera /> : <BiCameraOff />}
             </Button>
             <Button onClick={disconnectFromConferenceAction}>
                 <BiExit />
             </Button>
-            {hasVideo && <video className={cls.video} ref={videoRef} autoPlay muted></video>}
+            <video className={classNames(cls.video, { [cls.videoHidden]: !video })} ref={videoRef} autoPlay muted></video>
         </motion.div>
     )
 }

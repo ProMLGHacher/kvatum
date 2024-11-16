@@ -6,6 +6,8 @@ import { useRef, useEffect, useState } from 'react'
 import { useContextMenu } from '@/entities/useContextMenu'
 import { Channel } from '@/features/channels'
 import { useConference } from '@/entities/useConference'
+import { disconnectFromConferenceAction } from '../../model/conferenceActionsts'
+import { useUserData } from '@/entities/useUserData'
 
 
 export type ConferencePreviewProps = {
@@ -14,9 +16,9 @@ export type ConferencePreviewProps = {
 
 export const ConferencePreview = ({ channel }: ConferencePreviewProps) => {
 
-    const { stream, hasVideo, startVideo, stopVideo, stopMediaStream } = useMediaStream()
+    const { stream, video } = useMediaStream()
 
-    const { peers } = useConference()
+    const { peers, microState, videoState } = useConference()
 
     const { openContextMenu } = useContextMenu()
     const [selectedPeer, setSelectedPeer] = useState<string>()
@@ -26,72 +28,10 @@ export const ConferencePreview = ({ channel }: ConferencePreviewProps) => {
         e.stopPropagation()
         openContextMenu([
             {
-                id: 'pauseVideo',
-                text: 'Pause video',
-                type: 'checkbox',
-                checked: !hasVideo,
-                onClick: (e) => {
-                    e ? stopVideo() : startVideo()
-                }
-            },
-            {
-                id: 'mute',
-                text: 'Mute',
-                onClick: () => {
-                    console.log('mute')
-                }
-            },
-            {
-                id: 'unmute',
-                text: 'Unmute',
-                disabled: true,
-                onClick: () => {
-                    console.log('unmute')
-                }
-            },
-            {
                 id: 'leave',
                 text: 'Leave',
                 danger: true,
-                onClick: stopMediaStream
-            },
-            {
-                id: 'settings',
-                text: 'Settings',
-                icon: "⚙️",
-                subContent: <div>
-                    <input type="text" placeholder="Enter your name" />
-                </div>,
-                children: [
-                    {
-                        id: 'changeName',
-                        text: 'Change name',
-                        disabled: true,
-                        onClick: () => {
-                            console.log('change name')
-                        }
-                    },
-                    {
-                        id: 'friends',
-                        text: 'friend',
-                        type: 'checkbox',
-                        checked: hasVideo,
-                        onClick: () => {
-
-                        }
-                    },
-                ],
-                onClick: () => {
-                    console.log('settings')
-                }
-            },
-            {
-                id: 'copy',
-                text: 'Copy',
-                icon: '🔗',
-                onClick: () => {
-                    console.log('copy')
-                }
+                onClick: disconnectFromConferenceAction
             },
         ], { x: e.clientX, y: e.clientY })
     }
@@ -119,7 +59,7 @@ export const ConferencePreview = ({ channel }: ConferencePreviewProps) => {
                             {
                                 selectedPeer === 'me' ?
                                     (Boolean(stream) && <VideoView muted stream={stream} />)
-                                    : <VideoView stream={peers[selectedPeer].stream} muted />
+                                    : <VideoView stream={new MediaStream([peers[selectedPeer].videoTrack!])} muted />
                             }
                         </motion.div>
                     )
@@ -141,7 +81,9 @@ export const ConferencePreview = ({ channel }: ConferencePreviewProps) => {
                     layout
                 >
                     <span>me</span>
-                    {stream && <VideoView stream={stream} muted />}
+                    <span>{useUserData.getState().id}</span>
+                    <span>{video.toString()}</span>
+                    {video && <VideoView stream={stream} muted />}
                 </motion.div>
                 {
                     Object.values(peers).map((peer) => (
@@ -161,7 +103,15 @@ export const ConferencePreview = ({ channel }: ConferencePreviewProps) => {
                             layout
                         >
                             <span>{peer.id}</span>
-                            <VideoView stream={peer.stream} volume={peer.volume} />
+                            <br />
+                            <span>micro: {microState[peer.id].toString()}</span>
+                            <br />
+                            <span>video: {videoState[peer.id].toString()}</span>
+                            <br />
+                            <span>videoTrack: {peer.videoTrack ? 'video' : 'no video'}</span>
+                            <br />
+                            <span>audioTrack: {peer.audioTrack ? 'audio' : 'no audio'}</span>
+                            {peer.videoTrack && <VideoView stream={new MediaStream([peer.videoTrack])} />}
                         </motion.div>
                     ))
                 }
@@ -177,6 +127,7 @@ const VideoView = ({ stream, volume = 100, muted = false }: { stream: MediaStrea
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.srcObject = stream
+            videoRef.current.play()
         }
     }, [stream])
 

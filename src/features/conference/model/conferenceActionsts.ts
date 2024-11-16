@@ -3,6 +3,7 @@ import { ConferenceUser } from "@/entities/useConference/model/types"
 import { useMediaStream } from "@/entities/useMediaStream"
 import { useSignallingChannel } from "@/entities/useSignallingChannel"
 import { useUserData } from "@/entities/useUserData"
+import { shallow } from "zustand/shallow"
 
 const configuration: RTCConfiguration = { 'iceServers': [{ 'urls': 'stun:global.stun.twilio.com:3478' }], iceTransportPolicy: 'all' }
 
@@ -15,66 +16,72 @@ export const connectToConferenceAction = async (id: string) => {
         "eventType": "JoinToRoom",
         "eventBody": {
             "roomId": id,
-            "muted": !useMediaStream.getState().hasAudio,
-            "camera": useMediaStream.getState().hasVideo
+            "muted": !useMediaStream.getState().audio,
+            "camera": useMediaStream.getState().video
         }
     })
 
+    useMediaStream.subscribe(
+        state => state.video,
+        video => {
+            changeVideoState(video)
+        },
+        { equalityFn: shallow }
+    )
 
     useMediaStream.subscribe(
-        state => state.stream,
-        stream => {
-            if (stream) {
-                changeStreamPeerConnection(stream)
-            }
-        }
+        state => state.audio,
+        audio => {
+            changeMicroState(audio)
+        },
+        { equalityFn: shallow }
     )
 }
 
-export const switchConferenceMicroAction = () => {
-    const { hasAudio, muteAudio, unmuteAudio } = useMediaStream.getState()
-    if (hasAudio) {
-        muteAudio()
-        useSignallingChannel.getState().sendMessage({
-            eventType: "ChangeMicroState",
-            eventBody: false
-        })
-    } else {
-        unmuteAudio()
-        useSignallingChannel.getState().sendMessage({
-            eventType: "ChangeMicroState",
-            eventBody: true
-        })
-    }
+const changeVideoState = (video: boolean) => {
+    if (!useConference.getState().peers) return
+    useSignallingChannel.getState().sendMessage({
+        eventType: "ChangeVideoState",
+        eventBody: video
+    })
+    Object.values(useConference.getState().peers!).forEach(peer => {
+        if (video) {
+            useMediaStream.getState().stream?.getVideoTracks().forEach(track => {
+                // peer.pc.getSenders().forEach(sender => {
+                //     if (sender.track?.kind === 'video') {
+                //         sender.replaceTrack(track)
+                //     }
+                // })
+                peer.pc.addTrack(track)
+            });
+            sendUpdateOffer(peer.pc, peer.id)
+        } else {
+            peer.pc.getSenders().forEach(sender => {
+                if (sender.track?.kind === 'video') {
+                    peer.pc.removeTrack(sender)
+                }
+            });
+            sendUpdateOffer(peer.pc, peer.id)
+        }
+    })
 }
 
-export const switchConferenceCameraAction = () => {
-    const { hasVideo, startVideo, stopVideo } = useMediaStream.getState()
-    if (hasVideo) {
-        stopVideo()
-        useSignallingChannel.getState().sendMessage({
-            eventType: "ChangeVideoState",
-            eventBody: false
-        })
-    } else {
-        startVideo()
-        useSignallingChannel.getState().sendMessage({
-            eventType: "ChangeVideoState",
-            eventBody: true
-        })
-    }
+const changeMicroState = (audio: boolean) => {
+    useSignallingChannel.getState().sendMessage({
+        eventType: "ChangeMicroState",
+        eventBody: audio
+    })
 }
 
 export const disconnectFromConferenceAction = () => {
-    useConference.getState().disconnectFromConference()
     useMediaStream.getState().stopMediaStream()
+    useConference.getState().disconnectFromConference()
     useSignallingChannel.getState().sendMessage({
         eventType: "Disconnect"
     })
 }
 
 export const configureConferenceSignallingChannel = () => {
-    console.log('configureConferenceSignallingChannel');
     useSignallingChannel.getState().onMessage(message => {
         switch (message.eventType) {
             case 'UserList':
@@ -118,20 +125,13 @@ const handleMicroStateMessage = (state: boolean, from: string) => {
 
 const handleCameraStateMessage = (state: boolean, from: string) => {
     useConference.getState().setUserCamera(state, from)
-}
-
-const changeStreamPeerConnection = async (stream: MediaStream) => {
-    Object.values(useConference.getState().peers!).forEach(peer => {
-        peer.pc.getSenders().forEach(sender => {
-            sender.track?.stop()
-            peer.pc.removeTrack(sender)
+    if (state) {
+        useConference.getState().peers![from].pc.getReceivers().forEach(receiver => {
+            if (receiver.track?.kind === 'video') {
+                receiver.track.stop()
+            }
         });
-
-        stream.getTracks().forEach(track => {
-            peer.pc.addTrack(track, stream)
-        });
-        sendUpdateOffer(peer.pc, peer.id)
-    })
+    }
 }
 
 const sendUpdateOffer = async (pc: RTCPeerConnection, id: string) => {
@@ -158,9 +158,12 @@ const makeCall = async (user: ConferenceUser) => {
     useConference.getState().addPeerConnection({
         id: user.id,
         pc,
-        stream: new MediaStream(),
+        audioTrack: null,
+        videoTrack: null,
         volume: 100,
         user: user,
+        isMicroMuted: user.isMicroMuted,
+        hasVideo: user.hasVideo,
         state: 'pending'
     })
 
@@ -197,6 +200,16 @@ const configurePeerConnectionTracks = (pc: RTCPeerConnection) => {
     useMediaStream.getState().stream?.getTracks().forEach(track => {
         pc.addTrack(track)
     })
+    // useMediaStream.getState().stream!.onaddtrack = (event) => {
+    //     pc.addTrack(event.track)
+    // }
+    // useMediaStream.getState().stream!.onremovetrack = (event) => {
+    //     pc.getSenders().forEach(sender => {
+    //         if (sender.track?.kind === event.track.kind) {
+    //             pc.removeTrack(sender)
+    //         }
+    //     })
+    // }
 }
 
 const onIceCandidate = (user: ConferenceUser) => (event: RTCPeerConnectionIceEvent) => {
@@ -215,32 +228,30 @@ const onIceCandidate = (user: ConferenceUser) => (event: RTCPeerConnectionIceEve
 
 // TODO: add remote stream to the state
 const onTrack = (user: ConferenceUser) => (event: RTCTrackEvent) => {
-    console.log('ON TRACK', user.id);
 
-    console.log("АБОБУС", event);
+    console.log("NEW TRACK", event.track.kind);
+    
 
-
-    useConference.getState().addPeerConnectionStreamTrack(user.id, event.track)
-    console.log('ХУЙХУЙХУХЙУХЙХУЙХУХЙУХЙХУХЙХУХЙУ');
-    console.log(useConference.getState().peers);
+    if (event.track.kind === 'audio') {
+        useConference.getState().setPeerConnectionAudioTrack(user.id, event.track)
+    } else if (event.track.kind === 'video') {
+        useConference.getState().setPeerConnectionVideoTrack(user.id, event.track)
+    }
 
 }
 
 const handleConnectionStateChange = (pc: RTCPeerConnection, user: ConferenceUser) => () => {
 
     if (pc.connectionState === 'connected') {
-        console.log("ХУЙХУЙХУХЙУХЙХУЙХУХЙУХЙХУХЙХУХЙУ", user.id);
         useConference.getState().setPeerConnectionState(user.id, 'connected')
-        // useSignallingChannel.getState().onMessage(handleUpdateOfferMessage(pc))
-        // useSignallingChannel.getState().onMessage(handleUpdateAnswerMessage(pc))
-        // useSignallingChannel.getState().onMessage(handleRemoveTrackMessage(pc))
+    }
+    if (pc.connectionState === 'disconnected') {
+        useConference.getState().removePeerConnection(user.id)
     }
 }
 
 const handleIceCandidateMessage = (iceCandidate: RTCIceCandidate, from: string) => {
     try {
-        console.log(useConference.getState().peers);
-
         useConference.getState().peers![from].pc.addIceCandidate(iceCandidate)
     } catch (e) {
         console.error('Error adding received ice candidate', e)
@@ -288,9 +299,12 @@ const handleOfferMessage = async (offer: RTCSessionDescriptionInit, user: Confer
     useConference.getState().addPeerConnection({
         id: user.id,
         pc: peerConnection,
-        stream: new MediaStream(),
+        audioTrack: null,
+        videoTrack: null,
         volume: 100,
         user: user,
+        isMicroMuted: user.isMicroMuted,
+        hasVideo: user.hasVideo,
         state: 'pending'
     })
 

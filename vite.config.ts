@@ -15,11 +15,11 @@ export default defineConfig({
     },
   },
   server: {
-    // port: 443,
-    // https: {
-    //   key: '/etc/letsencrypt/archive/kvatum.online/privkey2.pem',
-    //   cert: '/etc/letsencrypt/archive/kvatum.online/fullchain2.pem',
-    // },
+    port: 443,
+    https: {
+      key: '/etc/letsencrypt/archive/kvatum.online/privkey2.pem',
+      cert: '/etc/letsencrypt/archive/kvatum.online/fullchain2.pem',
+    },
   },
   resolve: {
     alias: {

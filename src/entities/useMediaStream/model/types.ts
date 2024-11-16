@@ -1,17 +1,15 @@
 
 export type MediaStreamFields = {
     stream: MediaStream | null
-    hasAudio: boolean
-    hasVideo: boolean
+    audio: boolean
+    video: boolean
 }
 
 
 export type MediaStreamActions = {
-    getMediaStream: (constraints?: MediaStreamConstraints) => Promise<void>
-    muteAudio: () => void
-    unmuteAudio: () => void
-    stopVideo: () => void
-    startVideo: () => void
+    getMediaStream: () => Promise<void>
+    switchAudio: () => void
+    switchVideo: () => void
     stopMediaStream: () => void
 }
 

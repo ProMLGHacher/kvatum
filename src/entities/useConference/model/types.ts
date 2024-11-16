@@ -13,7 +13,10 @@ export type PeerConnection = {
     id: string,
     state: 'pending' | 'connected',
     pc: RTCPeerConnection,
-    stream: MediaStream | null,
+    videoTrack: MediaStreamTrack | null,
+    audioTrack: MediaStreamTrack | null,
+    isMicroMuted: boolean
+    hasVideo: boolean
     volume: number,
     user: ConferenceUser
 }
@@ -24,7 +27,8 @@ export type ConferenceActions = {
     setPeerConnections: (peerConnection: PeerConnections) => void,
     removePeerConnection: (id: string) => void,
     addPeerConnection: (peerConnection: PeerConnection) => void,
-    addPeerConnectionStreamTrack: (id: string, track: MediaStreamTrack) => void,
+    setPeerConnectionAudioTrack: (id: string, track: MediaStreamTrack) => void,
+    setPeerConnectionVideoTrack: (id: string, track: MediaStreamTrack) => void,
     clearPeerConnections: () => void,
     setUserVolume: (volume: number, id: string) => void,
     setUserMuted: (muted: boolean, id: string) => void,
@@ -37,5 +41,6 @@ export type ConferenceActions = {
 export type Conference = {
     roomId: string | null,
     peers: PeerConnections | null,
-    mediaStreamState: Map<string, { hasAudio: boolean, hasVideo: boolean }>
+    microState: Record<string, boolean>,
+    videoState: Record<string, boolean>,
 } & ConferenceActions

@@ -1,9 +1,8 @@
 import { WorkSpacesList } from '@/features/workSpaces/ui/WorkSpacesList/WorkSpacesList'
 import cls from './WorkSpace.module.scss'
 import { useParams, Outlet, Navigate, useNavigate } from 'react-router-dom'
-import { HubId, useHubs } from '@/entities/useHub'
+import { useHubs } from '@/entities/useHub'
 import { useEffect } from 'react'
-import { setCurrentHubAction } from '@/features/hubs/model/setCurrentHub/setCurrentHub'
 import { useWorkSpace } from '@/entities/useWorkSpcae'
 
 export const WorkSpacePage = () => {
