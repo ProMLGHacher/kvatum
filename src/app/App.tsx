@@ -31,12 +31,10 @@ export const App = () => {
   useEffect(() => {
     if (!(accessToken && refreshToken)) return
     const init = async () => {
-      Promise.all([getJoinedHubsAction()]).catch((e) => {
-        console.error(e)
-      }).finally(() => setLoading(false))
+      await getJoinedHubsAction()
       await useSignallingChannel.getState().connect()
       configureConferenceSignallingChannel()
-
+      setLoading(false)
     }
     init()
   }, [accessToken, refreshToken])

@@ -1,35 +1,33 @@
 // ProtectedRoute.tsx
-import React from 'react';
-import { Navigate, useSearchParams } from 'react-router-dom';
-import { UserRole, useUserData } from '@/entities/useUserData';
+import React, { useMemo } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
+import { UserRole, useUserData } from "@/entities/useUserData";
 
 interface ProtectedRouteProps {
-    element: React.ReactNode
-    roles?: UserRole[]
-    redirect?: string
-    skeleton?: React.ReactNode
+  element: React.ReactNode;
+  roles?: UserRole[];
+  redirect?: string;
+  skeleton?: React.ReactNode;
 }
 
-const ProtectedRoute = ({ element, roles, redirect = '/main' }: ProtectedRouteProps) => {
-    const [searchParams] = useSearchParams()
-    const redirectParam = searchParams.get('redirect')
-    
-    redirect = redirectParam || redirect
-    const { role } = useUserData()
+const ProtectedRoute = ({
+  element,
+  roles,
+  redirect = "/main",
+}: ProtectedRouteProps) => {
+  const [searchParams] = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
 
-    if (!role) {
-        return <Navigate to={redirect} replace />;
-    }
+  redirect = redirectParam || redirect;
+  const { role } = useUserData();
 
-    if (!roles) {
-        return element
-    }
+  const userRole = useMemo(() => role || UserRole.GUEST, [role]);
 
-    if (roles.includes(role)) {
-        return element
-    }
+  if (!roles) return element;
 
-    return <Navigate to={redirect} replace />;
+  if (roles.includes(userRole)) return element;
+
+  return <Navigate to={redirect} replace />;
 };
 
 export default ProtectedRoute;
