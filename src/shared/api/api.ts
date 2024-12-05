@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export const $baseURL = "https://kvatum.store";
-// export const $baseURL = "https://d83b-92-62-153-74.ngrok-free.app";
+// export const $baseURL = "https://kvatum.store";
+export const $baseURL = "https://dbc0-85-26-164-236.ngrok-free.app";
 
 export const $api = axios.create({
     baseURL: $baseURL,
