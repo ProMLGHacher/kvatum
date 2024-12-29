@@ -1,0 +1,17 @@
+.confControlsSwitcher {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: fit-content;
+    margin-block: auto;
+    z-index: 999;
+    padding: 5px;
+}
+
+.confControlsSwitcherLine {
+    width: 4px;
+    height: 140px;
+    background-color: #ffffff;
+    border-radius: 10px;
+}
