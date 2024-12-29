@@ -18,7 +18,7 @@ export const useSignallingChannel = create<SignallingChannelState>((set, get) =>
                         "eventType": "Token",
                         "eventBody": useTokensData.getState().accessToken
                     }))
-                    // websocketPinger(signallingChannel, controller)
+                    websocketPinger(signallingChannel, controller)
                     set({ signallingChannel })
                     resolve(true)
                 }
