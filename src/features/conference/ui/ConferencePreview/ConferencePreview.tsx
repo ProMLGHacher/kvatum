@@ -16,7 +16,7 @@ export type ConferencePreviewProps = {
 
 export const ConferencePreview = ({ channel }: ConferencePreviewProps) => {
 
-    const { stream, video } = useMediaStream()
+    const { stream, video, audio } = useMediaStream()
 
     const { peers, microState, videoState } = useConference()
 
@@ -80,10 +80,17 @@ export const ConferencePreview = ({ channel }: ConferencePreviewProps) => {
                     whileTap={{ scale: 0.98 }}
                     layout
                 >
-                    <span>me</span>
-                    <span>{useUserData.getState().id}</span>
-                    <span>{video.toString()}</span>
-                    {video && <VideoView stream={stream} muted />}
+                    <div style={{ zIndex: 100, position: 'absolute' }}>
+                        <span>me</span>
+                        <span>{useUserData.getState().id}</span>
+                        <p>video: {video.toString()}</p>
+                        <p>micro: {audio.toString()}</p>
+                        <p>micro object state: {stream?.getAudioTracks().length}</p>
+                        <p>video object state: {stream?.getVideoTracks().length}</p>
+                    </div>
+                    {video && stream?.getVideoTracks()[0] && (
+                        <VideoView stream={new MediaStream([stream.getVideoTracks()[0]])} />
+                    )}
                 </motion.div>
                 {
                     Object.values(peers).map((peer) => (
@@ -102,16 +109,22 @@ export const ConferencePreview = ({ channel }: ConferencePreviewProps) => {
                             whileTap={{ scale: 0.98 }}
                             layout
                         >
-                            <span>{peer.id}</span>
-                            <br />
-                            <span>micro: {microState[peer.id].toString()}</span>
-                            <br />
-                            <span>video: {videoState[peer.id].toString()}</span>
-                            <br />
-                            <span>videoTrack: {peer.videoTrack ? 'video' : 'no video'}</span>
-                            <br />
-                            <span>audioTrack: {peer.audioTrack ? 'audio' : 'no audio'}</span>
                             {peer.videoTrack && <VideoView stream={new MediaStream([peer.videoTrack])} />}
+                            <div style={{ zIndex: 100, position: 'absolute' }}>
+                                <span>{peer.id}</span>
+                                <br />
+                                <span>micro: {microState[peer.id].toString()}</span>
+                                <br />
+                                <span>video: {videoState[peer.id].toString()}</span>
+                                <br />
+                                <span>micro object state: {peer.user.isMicroMuted.toString()}</span>
+                                <br />
+                                <span>video object state: {peer.user.hasVideo.toString()}</span>
+                                <br />
+                                <span>videoTrack: {peer.videoTrack ? 'video' : 'no video'}</span>
+                                <br />
+                                <span>audioTrack: {peer.audioTrack ? 'audio' : 'no audio'}</span>
+                            </div>
                         </motion.div>
                     ))
                 }
@@ -125,10 +138,14 @@ const VideoView = ({ stream, volume = 100, muted = false }: { stream: MediaStrea
     const videoRef = useRef<HTMLVideoElement>(null)
 
     useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.srcObject = stream
-            videoRef.current.play()
+        if (!videoRef.current) return
+        if (!stream) {
+            videoRef.current.pause()
+            videoRef.current.srcObject = null
+            return
         }
+        videoRef.current.srcObject = stream
+        videoRef.current.play()
     }, [stream])
 
     useEffect(() => {

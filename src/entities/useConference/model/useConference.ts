@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { Conference } from "./types";
 
+// ^(?!.*(?:Ping|Pong)).*$ 
+// в инсрескторе вставить этот регекс чтобы убрать пинг и понг из логов
 
 export const useConference = create<Conference>((set, get) => ({
     roomId: null,
@@ -18,22 +20,21 @@ export const useConference = create<Conference>((set, get) => ({
         if (!get().peers) return
         set(state => {
             const { [id]: _, ...newState } = state.peers!
-            return { peers: newState }
+            return { peers: newState, microState: { ...state.microState, [id]: false }, videoState: { ...state.videoState, [id]: false } }
         })
     },
     addPeerConnection: (peerConnection) => {
         set(state => {
-            if (!state.peers) return { peers: { [peerConnection.id]: peerConnection } }
-            return { peers: { ...state.peers, [peerConnection.id]: peerConnection } }
+            if (!state.peers) return { peers: { [peerConnection.id]: peerConnection }, microState: { [peerConnection.id]: !peerConnection.user.isMicroMuted }, videoState: { [peerConnection.id]: peerConnection.user.hasVideo } }
+            return { peers: { ...state.peers, [peerConnection.id]: peerConnection }, microState: { ...state.microState, [peerConnection.id]: peerConnection.user.isMicroMuted }, videoState: { ...state.videoState, [peerConnection.id]: peerConnection.user.hasVideo } }
         })
-        get().microState[peerConnection.id] = !peerConnection.user.isMicroMuted
-        get().videoState[peerConnection.id] = peerConnection.user.hasVideo
     },
     setPeerConnectionAudioTrack: (id, track) => {
         if (!get().peers) return
         set(state => {
             return {
-                peers: { ...state.peers, [id]: { ...state.peers![id], audioTrack: track } }
+                peers: { ...state.peers, [id]: { ...state.peers![id], audioTrack: track } },
+                microState: { ...state.microState, [id]: !state.peers![id].user.isMicroMuted },
             }
         })
     },

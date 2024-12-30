@@ -38,32 +38,33 @@ export const connectToConferenceAction = async (id: string) => {
     )
 }
 
-const changeVideoState = (video: boolean) => {
+const changeVideoState = async (video: boolean) => {
     if (!useConference.getState().peers) return
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    const localMediaStream = useMediaStream.getState().stream
+    if (!localMediaStream) return
     useSignallingChannel.getState().sendMessage({
         eventType: "ChangeVideoState",
         eventBody: video
     })
-    Object.values(useConference.getState().peers!).forEach(peer => {
+    const videoTracks = localMediaStream.getVideoTracks()
+    console.log(videoTracks);
+    
+    for (const peer of Object.values(useConference.getState().peers!)) {
         if (video) {
-            useMediaStream.getState().stream?.getVideoTracks().forEach(track => {
-                // peer.pc.getSenders().forEach(sender => {
-                //     if (sender.track?.kind === 'video') {
-                //         sender.replaceTrack(track)
-                //     }
-                // })
-                peer.pc.addTrack(track)
-            });
-            sendUpdateOffer(peer.pc, peer.id)
+            for (const track of videoTracks) {
+                peer.pc.addTrack(track, localMediaStream)
+            }
+            await sendUpdateOffer(peer.pc, peer.id)
         } else {
-            peer.pc.getSenders().forEach(sender => {
+            for (const sender of peer.pc.getSenders()) {
                 if (sender.track?.kind === 'video') {
                     peer.pc.removeTrack(sender)
                 }
-            });
-            sendUpdateOffer(peer.pc, peer.id)
+            }
+            await sendUpdateOffer(peer.pc, peer.id)
         }
-    })
+    }
 }
 
 const changeMicroState = (audio: boolean) => {
@@ -125,7 +126,7 @@ const handleMicroStateMessage = (state: boolean, from: string) => {
 
 const handleCameraStateMessage = (state: boolean, from: string) => {
     useConference.getState().setUserCamera(state, from)
-    if (state) {
+    if (!state) {
         useConference.getState().peers![from].pc.getReceivers().forEach(receiver => {
             if (receiver.track?.kind === 'video') {
                 receiver.track.stop()
@@ -189,7 +190,7 @@ const createPeerConnection = (user: ConferenceUser) => {
     const peerConnection = new RTCPeerConnection(configuration)
 
     peerConnection.addEventListener('icecandidate', onIceCandidate(user))
-    peerConnection.addEventListener("track", onTrack(user))
+    peerConnection.addEventListener("track", onTrack(user.id))
     peerConnection.addEventListener('connectionstatechange', handleConnectionStateChange(peerConnection, user))
     // useSignallingChannel.getState().onMessage(handleIceCandidateMessage(peerConnection))
 
@@ -227,15 +228,17 @@ const onIceCandidate = (user: ConferenceUser) => (event: RTCPeerConnectionIceEve
 }
 
 // TODO: add remote stream to the state
-const onTrack = (user: ConferenceUser) => (event: RTCTrackEvent) => {
+const onTrack = (userId: string) => (event: RTCTrackEvent) => {
 
     console.log("NEW TRACK", event.track.kind);
+    console.log("NEW TRACK", event.track.enabled);
+    console.log("NEW TRACK", event.track);
     
 
     if (event.track.kind === 'audio') {
-        useConference.getState().setPeerConnectionAudioTrack(user.id, event.track)
+        useConference.getState().setPeerConnectionAudioTrack(userId, event.track)
     } else if (event.track.kind === 'video') {
-        useConference.getState().setPeerConnectionVideoTrack(user.id, event.track)
+        useConference.getState().setPeerConnectionVideoTrack(userId, event.track)
     }
 
 }

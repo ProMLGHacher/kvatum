@@ -24,15 +24,27 @@ export const useMediaStream =
             switchVideo: async () => {
                 if (!get().stream) return
                 if (get().video) {
-                    get().stream?.getVideoTracks().forEach(track => {
-                        track.stop()
-                        get().stream?.removeTrack(track)
-                    })
-                    set({ video: false })
+                    try {
+                        get().stream?.getVideoTracks().forEach(track => {
+                            track.stop()
+                            get().stream?.removeTrack(track)
+                        })
+                        set({ video: false })
+                    } catch (error) {
+                        console.error("Error stopping video track", error)
+                    }
                 } else {
-                    const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true })
-                    mediaStream.getVideoTracks().forEach(track => get().stream?.addTrack(track))
-                    set({ video: true })
+                    try {
+                        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true })
+                        mediaStream.getVideoTracks().forEach(track => {
+                            console.log("muted ", track.muted);
+                            
+                            get().stream?.addTrack(track)
+                        })
+                        set({ video: true })
+                    } catch (error) {
+                        console.error("Error starting video track", error)
+                    }
                 }
             },
             stopMediaStream: async () => {

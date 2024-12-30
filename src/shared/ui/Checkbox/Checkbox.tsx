@@ -1,5 +1,5 @@
 import cls from './Checkbox.module.scss';
-import Tick from '@/shared/svg/Tick.svg?react';
+import Tick from '@/shared/svg/tick.svg?react';
 
 type CheckboxProps = {
     id: string;
