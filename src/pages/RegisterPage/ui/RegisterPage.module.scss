@@ -1,0 +1,24 @@
+.registerPage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.registerForm {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    gap: 10px;
+}
+
+.error {
+    color: red;
+}
+
+.loginLink {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}

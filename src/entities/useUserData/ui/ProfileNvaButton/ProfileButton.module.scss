@@ -1,0 +1,26 @@
+.profileButton {
+    background-color: #61646b;
+    border: none;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(195, 182, 182, 0.2);
+    transition: box-shadow 0.2s ease-in-out, transform 0.2s;
+    cursor: pointer;
+}
+
+.profileButton:hover {
+    box-shadow: 0 4px 8px rgba(195, 182, 182, 0.3);
+    transform: scale(1.01);
+}
+
+.profileButton:active {
+    transform: scale(0.99);
+}
+
+.profileIcon {
+    width: 100%;
+    height: 100%;
+    color: #fff;
+}
