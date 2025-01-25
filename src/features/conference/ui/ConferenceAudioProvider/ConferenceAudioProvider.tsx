@@ -6,9 +6,9 @@ import { useEffect } from "react"
 
 export const ConferenceAudioProvider = ({ children }: { children: React.ReactNode }) => {
 
-    const { isAuthorized } = useTokensData()
+    const { accessToken, refreshToken } = useTokensData()
 
-    if (!isAuthorized) return children
+    if (!accessToken || !refreshToken) return children
 
     const { peers } = useConference()
 

@@ -9,7 +9,6 @@ export const registerAction = async (registerBody: RegisterBody) => {
         useTokensData.getState().setTokensData(tokensData);
         const userData = await userApi.getUser();
         useUserData.getState().setUserData(userData);
-        useTokensData.getState().setIsAuthorized(true);
     } catch (error) {
         if (isAxiosError(error)) {
             throw new ActionError('axios error');
