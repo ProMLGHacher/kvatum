@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { Conference } from "./types";
 
 // ^(?!.*(?:Ping|Pong)).*$ 
-// в инсрескторе вставить этот регекс чтобы убрать пинг и понг из логов
+// в инспекторе вставить этот регекс чтобы убрать пинг и понг из логов
 
 export const useConference = create<Conference>((set, get) => ({
     roomId: null,

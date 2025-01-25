@@ -4,7 +4,7 @@ import { classNames } from '@/shared/lib/classNames/classNames'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
 import { useContextMenu } from '@/entities/useContextMenu'
-import { Channel } from '@/features/channels'
+import { Channel } from '@/entities/useChannels'
 import { useConference } from '@/entities/useConference'
 import { disconnectFromConferenceAction } from '../../model/conferenceActionsts'
 import { useUserData } from '@/entities/useUserData'
@@ -14,7 +14,7 @@ export type ConferencePreviewProps = {
     channel: Channel
 }
 
-export const ConferencePreview = ({ channel }: ConferencePreviewProps) => {
+export const ConferencePreview = ({ }: ConferencePreviewProps) => {
 
     const { stream, video, audio } = useMediaStream()
 

@@ -4,7 +4,7 @@ import { Chat } from "@/widgets/Chat";
 import { PanInfo, motion } from "framer-motion";
 import { useState, useDeferredValue } from "react";
 import { ConferencePreview } from '../ConferencePreview/ConferencePreview';
-import { Channel } from '@/features/channels';
+import { Channel } from '@/entities/useChannels';
 import { useServerContentWindowsState } from '@/entities/useServerContentWindowsState';
 import { useConference } from '@/entities/useConference';
 

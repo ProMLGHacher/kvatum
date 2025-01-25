@@ -1,8 +1,9 @@
 import { Outlet, useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { MainHeader } from '@/widgets/MainHeader'
 export const MainPage = () => {
   const navigate = useNavigate()
+  const prevPath = useRef<string>()
 
 
   useEffect(() => {
@@ -14,7 +15,17 @@ export const MainPage = () => {
   useEffect(() => {
     const handleKeyDown = (ev: KeyboardEvent) => {
       if (ev.shiftKey && ev.key === 'Tab') {
-        navigate(location.pathname.includes('/main/hubs') ? '/main/chats' : '/main/hubs');
+        console.log(prevPath.current);
+        console.log(location.pathname);
+
+        if (prevPath.current) {
+          const navPath = prevPath.current
+          prevPath.current = location.pathname
+          navigate(navPath);
+        } else {
+          prevPath.current = location.pathname
+          navigate(location.pathname.includes('/main/hubs') ? '/main/chats' : '/main/hubs');
+        }
         ev.preventDefault();
       }
     }
@@ -26,7 +37,7 @@ export const MainPage = () => {
   }, []);
 
   return (
-   <>
+    <>
       <MainHeader />
       <Outlet />
     </>
