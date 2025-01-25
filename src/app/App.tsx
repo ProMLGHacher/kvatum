@@ -28,7 +28,10 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    if (!(accessToken && refreshToken)) return;
+    if (!(accessToken && refreshToken)) {
+      useSignallingChannel.getState().close()
+      return
+    }
     const init = async () => {
       await initHubsDataAction();
       await useSignallingChannel.getState().connect();
