@@ -6,7 +6,10 @@
     margin-block: auto;
     margin-right: 10px;
     height: fit-content;
-    
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 
     padding: 20px;
 

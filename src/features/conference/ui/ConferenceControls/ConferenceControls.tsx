@@ -15,7 +15,7 @@ interface ConferenceControlsProps {
 
 export const ConferenceControls = ({ opened, onClose }: ConferenceControlsProps) => {
 
-    const { stream, audio, video, switchVideo, switchAudio, getMediaStream } = useMediaStream()
+    const { stream, audio, video, switchVideo, switchAudio } = useMediaStream()
 
     const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -33,9 +33,9 @@ export const ConferenceControls = ({ opened, onClose }: ConferenceControlsProps)
             animate={{ right: opened ? 0 : '-400px' }}
             className={cls.conferenceControls}
         >
-            <Button onClick={getMediaStream}>
+            {/* <Button onClick={getMediaStream}>
                 <BiMicrophone />
-            </Button>
+            </Button> */}
             <Button onClick={switchAudio}>
                 {audio ? <BiMicrophone /> : <BiMicrophoneOff />}
             </Button>

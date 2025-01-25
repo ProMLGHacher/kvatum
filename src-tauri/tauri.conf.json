@@ -10,13 +10,18 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "trayIcon": {
+      "title": "kvatum",
+      "tooltip": "kvatum",
+      "iconPath": "icons/icon.png"
+    },
     "windows": [
       {
         "title": "kvatum",
-        "minHeight": 768,
+        "minHeight": 660,
         "minWidth": 1024,
         "width": 1024,
-        "height": 768
+        "height": 660
       }
     ],
     "security": {
@@ -26,6 +31,10 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "copyright": "Copyright © 2025 Kvatum",
+    "publisher": "Kvatum",
+    "shortDescription": "Kvatum - a very powerful collaboration tool",
+    "longDescription": "Kvatum is a very powerful collaboration tool",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

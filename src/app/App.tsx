@@ -13,7 +13,7 @@ import { initHubsDataAction } from "@/features/hubs/model/initHubsData/initHubsD
 export const App = () => {
   const [loading, setLoading] = useState(true);
 
-  const { isAuthorized, accessToken, refreshToken } = useTokensData();
+  const { accessToken, refreshToken } = useTokensData();
 
   useEffect(() => {
     const init = async () => {
@@ -43,7 +43,6 @@ export const App = () => {
       <div style={{ color: "white" }}>
         <p>
           {JSON.stringify({
-            isAuthorized,
             accessToken,
             refreshToken,
           })}

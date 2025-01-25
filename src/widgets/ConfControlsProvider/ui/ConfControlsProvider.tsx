@@ -10,9 +10,9 @@ interface ConfControlsProviderProps {
 
 export const ConfControlsProvider = ({ children }: ConfControlsProviderProps) => {
     const [opened, setOpened] = useState(false)
-    const { isAuthorized } = useTokensData()
+    const { accessToken, refreshToken } = useTokensData()
 
-    if (!isAuthorized) return children
+    if (!accessToken || !refreshToken) return children
 
     return <>
         {createPortal(<ConferenceControls opened={opened} onClose={() => setOpened(false)} />, document.body)}
