@@ -1,30 +1,46 @@
-import cls from './WorkSpacesList.module.scss'
-import { NavLink } from 'react-router-dom'
-import { classNames } from '@/shared/lib/classNames/classNames'
-import { useWorkSpace } from '@/entities/useWorkSpcae'
-import { CreateWorkSpaceButton } from '../CreateWorkSpaceButton/CreateWorkSpaceButton'
-import { useHubs } from '@/entities/useHub'
+import cls from "./WorkSpacesList.module.scss";
+import { NavLink, useParams } from "react-router-dom";
+import { classNames } from "@/shared/lib/classNames/classNames";
+import { useWorkSpace } from "@/entities/useWorkSpcae";
+import { CreateWorkSpaceButton } from "../CreateWorkSpaceButton/CreateWorkSpaceButton";
+import { HubParamsIds } from "@/features/hubs";
 
 export const WorkSpacesList = () => {
+  const { hubId } = useParams<HubParamsIds>();
+  const { workSpaces } = useWorkSpace();
 
-    const { currentHub } = useHubs()
-    const { workSpaceList } = useWorkSpace()
-
+  if (!hubId) {
     return (
-        <>
-            {
-                workSpaceList?.map((workSpace) => (
-                    <NavLink
-                        key={workSpace.id}
-                        to={`/main/hubs/${currentHub?.id}/${workSpace.id}`}
-                        title={workSpace.name}
-                        className={({ isActive }) => classNames(cls.workSpace, { [cls.active]: isActive })}
-                    >
-                        {workSpace.name}
-                    </NavLink>
-                ))
-            }
-            <CreateWorkSpaceButton />
-        </>
-    )
-}
+      <div>
+        <h1>Вы не выбрали хаб</h1>
+      </div>
+    );
+  }
+
+  if (!workSpaces?.[hubId]) {
+    return <h1>Пусто</h1>;
+  }
+
+  const workSpaceList = Object.values(workSpaces?.[hubId]);
+
+  return (
+    <>
+      {workSpaceList?.map(
+        (workSpace) =>
+          workSpace && (
+            <NavLink
+              key={workSpace.id}
+              to={`/main/hubs/${hubId}/${workSpace.id}`}
+              title={workSpace.name}
+              className={({ isActive }) =>
+                classNames(cls.workSpace, { [cls.active]: isActive })
+              }
+            >
+              {workSpace.name}
+            </NavLink>
+          )
+      )}
+      <CreateWorkSpaceButton />
+    </>
+  );
+};

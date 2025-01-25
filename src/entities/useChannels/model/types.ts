@@ -1,18 +1,20 @@
-export type ChannelId = Brand<string, 'ChannelId'>
+import { WorkSpaceId } from "@/entities/useWorkSpcae";
 
-export type ChannelType = 'Conference' | 'Chat' | 'Channel'
+export type ChannelId = Brand<string, "ChannelId">;
+
+export type ChannelType = "Conference" | "Chat" | "Channel";
 
 export type Channel = {
-    id: ChannelId,
-    name: string,
-    type: ChannelType
-}
+  id: ChannelId;
+  name: string;
+  type: ChannelType;
+};
 
 export type ChannelsActions = {
-    setChannels: (channels: Channel[]) => void,
-    clearChannels: () => void
-}
+  setChannels: (channels: Channel[], workSpaceId: WorkSpaceId) => void;
+  clearChannels: (workSpaceId: WorkSpaceId) => void;
+};
 
 export type ChannelsStore = {
-    channels: Channel[] | null,
-} & ChannelsActions
+  channels: Record<WorkSpaceId, Record<ChannelId, Channel>> | null;
+} & ChannelsActions;

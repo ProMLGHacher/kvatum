@@ -1,52 +1,61 @@
-import { useEffect, useState } from "react"
-import { AppRouter } from "./appRouter/AppRouter"
-import { configureTokenInterceptors } from "./lib/initTokenInterceptor"
-import { getUserAction } from "@/features/user/getUserAction/getUserAction"
-import { ContextMenuProvider } from "@/entities/useContextMenu/ui/ContextMenuProvider"
-import { getJoinedHubsAction } from "@/features/hubs/model/getJoinedHubs/getJoinedHubs"
-import { ConfControlsProvider } from "@/widgets/ConfControlsProvider/ui/ConfControlsProvider"
-import { useSignallingChannel } from "@/entities/useSignallingChannel"
-import { configureConferenceSignallingChannel } from "@/features/conference/model/conferenceActionsts"
-import { ConferenceAudioProvider } from "@/features/conference/ui/ConferenceAudioProvider/ConferenceAudioProvider"
-import { useTokensData } from "@/entities/useTokensData"
+import { useEffect, useState } from "react";
+import { AppRouter } from "./appRouter/AppRouter";
+import { configureTokenInterceptors } from "./lib/initTokenInterceptor";
+import { getUserAction } from "@/features/user/getUserAction/getUserAction";
+import { ContextMenuProvider } from "@/entities/useContextMenu/ui/ContextMenuProvider";
+import { getJoinedHubsAction } from "@/features/hubs/model/getJoinedHubs/getJoinedHubs";
+import { ConfControlsProvider } from "@/widgets/ConfControlsProvider/ui/ConfControlsProvider";
+import { useSignallingChannel } from "@/entities/useSignallingChannel";
+import { configureConferenceSignallingChannel } from "@/features/conference/model/conferenceActionsts";
+import { ConferenceAudioProvider } from "@/features/conference/ui/ConferenceAudioProvider/ConferenceAudioProvider";
+import { useTokensData } from "@/entities/useTokensData";
+import { getChannelsAction } from "@/features/channels";
+import { getHubWorkSpacesAction } from "@/features/workSpaces/model/getHubWorkSpaces/getHubWorkSpaces";
+import { useHubs } from "@/entities/useHub";
+import { useWorkSpace, WorkSpaceId } from "@/entities/useWorkSpcae";
+import { initHubsDataAction } from "@/features/hubs/model/initHubsData/initHubsData";
 
 export const App = () => {
+  const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] = useState(true)
-
-  const { isAuthorized, accessToken, refreshToken } = useTokensData()
+  const { isAuthorized, accessToken, refreshToken } = useTokensData();
 
   useEffect(() => {
     const init = async () => {
-      configureTokenInterceptors()
+      configureTokenInterceptors();
       try {
-        await getUserAction()
+        await getUserAction();
       } catch (error) {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    init()
-  }, [])
+    };
+    init();
+  }, []);
 
   useEffect(() => {
-    if (!(accessToken && refreshToken)) return
+    if (!(accessToken && refreshToken)) return;
     const init = async () => {
-      await getJoinedHubsAction()
-      await useSignallingChannel.getState().connect()
-      configureConferenceSignallingChannel()
-      setLoading(false)
-    }
-    init()
-  }, [accessToken, refreshToken])
+      await initHubsDataAction();
+      await useSignallingChannel.getState().connect();
+      configureConferenceSignallingChannel();
+      setLoading(false);
+    };
+    init();
+  }, [accessToken, refreshToken]);
 
   if (loading) {
-    return <div style={{ color: 'white' }}>
-      <p>{JSON.stringify({
-        isAuthorized,
-        accessToken,
-        refreshToken,
-      })}</p>
-      Гружу приложение...</div>
+    return (
+      <div style={{ color: "white" }}>
+        <p>
+          {JSON.stringify({
+            isAuthorized,
+            accessToken,
+            refreshToken,
+          })}
+        </p>
+        Гружу приложение...
+      </div>
+    );
   }
 
   return (
@@ -57,5 +66,5 @@ export const App = () => {
         </ConferenceAudioProvider>
       </ConfControlsProvider>
     </ContextMenuProvider>
-  )
-}
+  );
+};

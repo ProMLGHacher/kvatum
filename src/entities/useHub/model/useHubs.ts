@@ -3,18 +3,45 @@ import { HubStore } from "./types";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 export const useHubs = create<HubStore>()(
-    persist(
-        (set) => ({
-            currentHub: null,
-            hubsList: null,
-            setHubsList: (hubs) => set({ hubsList: hubs }),
-            clearHubsList: () => set({ hubsList: null }),
-            addHub: (hub) => set((state) => ({ hubsList: state.hubsList ? state.hubsList.concat(hub) : [hub] })),
-            setCurrentHub: (hubId) => set((state) => ({ currentHub: state.hubsList?.find((hub) => hub.id === hubId) })),
-        }),
-        {
-            name: 'hubs',
-            storage: createJSONStorage(() => sessionStorage),
+  persist(
+    (set) => ({
+      hubs: null,
+      setHubs: (hubs) => {
+        if (!hubs) {
+          set({ hubs: null });
+          return;
         }
-    )
-)
+        if (hubs.length === 0) {
+          set({ hubs: null });
+          return;
+        }
+        const newHubs = hubs.reduce(
+          (acc, hub) => ({ ...acc, [hub.id]: hub }),
+          {}
+        );
+        set({ hubs: newHubs });
+      },
+      clearHubs: () => set({ hubs: null }),
+      addHub: (hub) =>
+        set((state) => ({
+          hubs: state.hubs
+            ? { ...state.hubs, [hub.id]: hub }
+            : { [hub.id]: hub },
+        })),
+      removeHub: (hubId) =>
+        set((state) => {
+          const newHubs = { ...state.hubs };
+          delete newHubs[hubId];
+          return { hubs: newHubs };
+        }),
+      updateHub: (hub) =>
+        set((state) => ({
+          hubs: { ...state.hubs, [hub.id]: hub },
+        })),
+    }),
+    {
+      name: "hubs",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);

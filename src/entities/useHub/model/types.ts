@@ -1,22 +1,22 @@
-import { ImageWithResolutions } from "@/shared/types/image/imageWithResolution"
+import { ImageWithResolutions } from "@/shared/types/image/imageWithResolution";
 
-export type HubId = Brand<string, "HubId">
+export type HubId = Brand<string, "HubId">;
 
 export type Hub = {
-    id: HubId,
-    name: string,
-    hexColor: string,
-    images: ImageWithResolutions | null
-}
+  id: HubId;
+  name: string;
+  hexColor: string;
+  images: ImageWithResolutions | null;
+};
 
 export type HubActions = {
-    setHubsList: (hubs: Hub[]) => void
-    clearHubsList: () => void
-    setCurrentHub: (hubId: HubId) => void
-}
+  setHubs: (hubs: Hub[]) => void;
+  clearHubs: () => void;
+  addHub: (hub: Hub) => void;
+  removeHub: (hubId: HubId) => void;
+  updateHub: (hub: Hub) => void;
+};
 
 export type HubStore = {
-    currentHub: Hub | null
-    hubsList: Hub[] | null
-    addHub: (hub: Hub) => void
-} & HubActions
+  hubs: Record<HubId, Hub> | null;
+} & HubActions;

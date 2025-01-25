@@ -1,7 +1,7 @@
-import { hubsApi } from "@/entities/useHub/api/hubsApi"
-import { getJoinedHubsAction } from "../getJoinedHubs/getJoinedHubs"
+import { hubsApi } from "@/entities/useHub/api/hubsApi";
+import { initHubsDataAction } from "../initHubsData/initHubsData";
 
 export const acceptInviteAction = async (inviteHash: string) => {
-    await hubsApi.acceptInvite(inviteHash)
-    await getJoinedHubsAction()
-}
+  await hubsApi.acceptInvite(inviteHash);
+  await initHubsDataAction();
+};
