@@ -24,10 +24,6 @@ export const ServerInfoPage = () => {
   const currentHub = hubs?.[hubId];
   const currentWorkSpace = workSpaces?.[hubId]?.[workspaceId];
 
-  console.log(1);
-
-  console.log(channels, workSpaces, hubs, hubId, workspaceId, channelId);
-
   return (
     <div className={cls.serverInfo}>
       <div
