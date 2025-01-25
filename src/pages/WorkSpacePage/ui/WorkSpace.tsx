@@ -2,11 +2,9 @@ import { WorkSpacesList } from "@/features/workSpaces/ui/WorkSpacesList/WorkSpac
 import cls from "./WorkSpace.module.scss";
 import { useParams, Outlet } from "react-router-dom";
 import { HubParamsIds } from "@/features/hubs/";
-import { useWorkSpace } from "@/entities/useWorkSpcae";
 
 export const WorkSpacePage = () => {
   const { workspaceId, hubId } = useParams<HubParamsIds>();
-  const { workSpaces } = useWorkSpace();
 
   if (!hubId) {
     return (
