@@ -19,6 +19,7 @@ export const useWorkSpace = create<WorkSpaceStore>()(
       addWorkSpace: (workSpace, hubId) => {
         set((state) => ({
           workSpaces: {
+            ...state.workSpaces,
             [hubId]: {
               ...state.workSpaces?.[hubId],
               [workSpace.id]: workSpace,

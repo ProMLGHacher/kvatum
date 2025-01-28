@@ -5,7 +5,6 @@ export const useChannels = create<ChannelsStore>((set) => ({
   channels: null,
   setChannels: (channels, workSpaceId) =>
     set((state) => ({
-      ...state,
       channels: {
         ...state.channels,
         [workSpaceId]: channels.reduce(
@@ -16,7 +15,6 @@ export const useChannels = create<ChannelsStore>((set) => ({
     })),
   clearChannels: (workSpaceId) =>
     set((state) => ({
-      ...state,
       channels: { ...state.channels, [workSpaceId]: undefined },
     })),
 }));
