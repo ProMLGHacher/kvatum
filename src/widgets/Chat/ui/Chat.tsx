@@ -1,6 +1,5 @@
 import cls from './Chat.module.scss';
-
-import { Channel } from "@/features/channels"
+import { Channel } from '@/entities/useChannels';
 
 export type ChatProps = {
     channel?: Channel;

@@ -1,5 +1,5 @@
 // ProtectedRoute.tsx
-import React, { useMemo } from "react";
+import React from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { UserRole, useUserData } from "@/entities/useUserData";
 
@@ -21,7 +21,7 @@ const ProtectedRoute = ({
   redirect = redirectParam || redirect;
   const { role } = useUserData();
 
-  const userRole = useMemo(() => role || UserRole.GUEST, [role]);
+  const userRole = role || UserRole.GUEST
 
   if (!roles) return element;
 

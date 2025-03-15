@@ -1,8 +1,8 @@
 [package]
 name = "kvatum"
-version = "0.1.0"
+version = "0.2.0"
 description = "Kvatum - a very powerful collaboration tool"
-authors = ["Araik Gukasyan"]
+authors = ["Araik Gukasyan <inbox@araik.dev>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,7 +15,7 @@ name = "kvatum_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2.0.0-alpha", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = ["tray-icon"] }

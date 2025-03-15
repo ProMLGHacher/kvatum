@@ -7,9 +7,16 @@ import { shallow } from "zustand/shallow"
 
 const configuration: RTCConfiguration = { 'iceServers': [{ 'urls': 'stun:global.stun.twilio.com:3478' }], iceTransportPolicy: 'all' }
 
+const abortController = new AbortController()
+
 export const connectToConferenceAction = async (id: string) => {
 
-    await useMediaStream.getState().getMediaStream()
+    try {
+        await useMediaStream.getState().getMediaStream()
+    } catch (error) {
+        console.error(error)
+        return
+    }
     useConference.getState().setRoomId(id)
 
     useSignallingChannel.getState().sendMessage({
@@ -21,21 +28,22 @@ export const connectToConferenceAction = async (id: string) => {
         }
     })
 
-    useMediaStream.subscribe(
+    const unsubscribeVideo = useMediaStream.subscribe(
         state => state.video,
-        video => {
-            changeVideoState(video)
-        },
+        changeVideoState,
         { equalityFn: shallow }
     )
 
-    useMediaStream.subscribe(
+    const unsubscribeAudio = useMediaStream.subscribe(
         state => state.audio,
-        audio => {
-            changeMicroState(audio)
-        },
+        changeMicroState,
         { equalityFn: shallow }
     )
+
+    abortController.signal.addEventListener('abort', () => {
+        unsubscribeVideo()
+        unsubscribeAudio()
+    })
 }
 
 const changeVideoState = async (video: boolean) => {
@@ -75,6 +83,7 @@ const changeMicroState = (audio: boolean) => {
 }
 
 export const disconnectFromConferenceAction = () => {
+    abortController.abort()
     useMediaStream.getState().stopMediaStream()
     useConference.getState().disconnectFromConference()
     useSignallingChannel.getState().sendMessage({
@@ -83,9 +92,12 @@ export const disconnectFromConferenceAction = () => {
 }
 
 export const configureConferenceSignallingChannel = () => {
+    console.log("configureConferenceSignallingChannel");
+    
     useSignallingChannel.getState().onMessage(message => {
         switch (message.eventType) {
             case 'UserList':
+                console.log("UserList", message.users);
                 handleUserListMessage(message.users as ConferenceUser[])
                 break
             case 'IceCandidate':
@@ -155,6 +167,7 @@ const handleUserListMessage = (users: ConferenceUser[]) => {
 }
 
 const makeCall = async (user: ConferenceUser) => {
+    console.log("makeCall", user);
     const pc = createPeerConnection(user)
     useConference.getState().addPeerConnection({
         id: user.id,
@@ -227,7 +240,7 @@ const onIceCandidate = (user: ConferenceUser) => (event: RTCPeerConnectionIceEve
     }
 }
 
-// TODO: add remote stream to the state
+
 const onTrack = (userId: string) => (event: RTCTrackEvent) => {
 
     console.log("NEW TRACK", event.track.kind);

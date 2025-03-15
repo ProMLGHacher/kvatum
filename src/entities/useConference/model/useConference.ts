@@ -24,6 +24,7 @@ export const useConference = create<Conference>((set, get) => ({
         })
     },
     addPeerConnection: (peerConnection) => {
+        console.log(peerConnection)
         set(state => {
             if (!state.peers) return { peers: { [peerConnection.id]: peerConnection }, microState: { [peerConnection.id]: !peerConnection.user.isMicroMuted }, videoState: { [peerConnection.id]: peerConnection.user.hasVideo } }
             return { peers: { ...state.peers, [peerConnection.id]: peerConnection }, microState: { ...state.microState, [peerConnection.id]: peerConnection.user.isMicroMuted }, videoState: { ...state.videoState, [peerConnection.id]: peerConnection.user.hasVideo } }

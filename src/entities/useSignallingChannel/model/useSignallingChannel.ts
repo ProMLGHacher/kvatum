@@ -8,7 +8,7 @@ export const useSignallingChannel = create<SignallingChannelState>(
   (set, get) => ({
     signallingChannel: null,
     isLoading: true,
-    connect: async () => {
+    connect: async () => new Promise((resolve, reject) => {
       set({ isLoading: true });
       if (get().signallingChannel) {
         get().signallingChannel?.close();
@@ -27,6 +27,7 @@ export const useSignallingChannel = create<SignallingChannelState>(
             );
             websocketPinger(signallingChannel, controller);
             set({ signallingChannel });
+            resolve()
           },
           { signal: controller.signal }
         );
@@ -34,13 +35,14 @@ export const useSignallingChannel = create<SignallingChannelState>(
           console.log("close");
           controller.abort();
           set({ signallingChannel: null });
+          reject(new Error("Signalling channel closed"));
         });
       } catch (error) {
         console.error(error);
       } finally {
         set({ isLoading: false });
       }
-    },
+    }),
     onMessage: (callback: (event: Record<string, any>) => void) => {
       get().signallingChannel?.addEventListener("message", (event) => {
         callback(JSON.parse(event.data));

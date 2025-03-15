@@ -8,7 +8,7 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 fn get_version() -> String {
-    format!("0.0.1")
+    format!("0.2.0")
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
