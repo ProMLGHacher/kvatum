@@ -8,6 +8,7 @@
     transition: border-color 0.3s ease-in-out, transform 0.1s;
     cursor: pointer;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .chat.active {
