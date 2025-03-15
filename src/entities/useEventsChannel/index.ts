@@ -1,0 +1,1 @@
+export { useEventsChannel } from "./model/useEventsChannel";

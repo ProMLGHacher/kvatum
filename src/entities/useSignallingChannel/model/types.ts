@@ -1,5 +1,3 @@
-
-
 export type SignallingChannel = {
     signallingChannel: WebSocket | null
     isLoading: boolean

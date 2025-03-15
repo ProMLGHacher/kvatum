@@ -9,6 +9,8 @@ import { configureConferenceSignallingChannel } from "@/features/conference/mode
 import { ConferenceAudioProvider } from "@/features/conference/ui/ConferenceAudioProvider/ConferenceAudioProvider";
 import { useTokensData } from "@/entities/useTokensData";
 import { initHubsDataAction } from "@/features/hubs/model/initHubsData/initHubsData";
+import { useEventsChannel } from "@/entities/useEventsChannel";
+import { AppEventsProvider } from "@/process/appEventsProvider";
 
 export const App = () => {
   const [loading, setLoading] = useState(true);
@@ -29,12 +31,22 @@ export const App = () => {
 
   useEffect(() => {
     if (!(accessToken && refreshToken)) {
-      useSignallingChannel.getState().close()
-      return
+      useSignallingChannel.getState().close();
+      useEventsChannel.getState().close();
+      return;
     }
     const init = async () => {
       await initHubsDataAction();
-      await useSignallingChannel.getState().connect();
+      try {
+        await useSignallingChannel.getState().connect();
+      } catch (error) {
+        console.log(error);
+      }
+      try {
+        await useEventsChannel.getState().connect();
+      } catch (error) {
+        console.log(error);
+      }
       configureConferenceSignallingChannel();
       setLoading(false);
     };
@@ -42,26 +54,18 @@ export const App = () => {
   }, [accessToken, refreshToken]);
 
   if (loading) {
-    return (
-      <div style={{ color: "white" }}>
-        <p>
-          {JSON.stringify({
-            accessToken,
-            refreshToken,
-          })}
-        </p>
-        Гружу приложение...
-      </div>
-    );
+    return <div style={{ color: "white" }}>Гружу приложение...</div>;
   }
 
   return (
-    <ContextMenuProvider>
-      <ConfControlsProvider>
-        <ConferenceAudioProvider>
-          <AppRouter />
-        </ConferenceAudioProvider>
-      </ConfControlsProvider>
-    </ContextMenuProvider>
+    <AppEventsProvider>
+      <ContextMenuProvider>
+        <ConfControlsProvider>
+          <ConferenceAudioProvider>
+            <AppRouter />
+          </ConferenceAudioProvider>
+        </ConfControlsProvider>
+      </ContextMenuProvider>
+    </AppEventsProvider>
   );
 };
