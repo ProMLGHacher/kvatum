@@ -2,12 +2,22 @@
     width: 100%;
     display: flex;
     overflow: auto;
+
+    @media (max-width: 500px) {
+        flex-direction: column;
+    }
 }
 
 .serverNav {
     width: 220px;
     background-color: #2f3136;
     flex-shrink: 0;
+
+    @media (max-width: 500px) {
+        width: 100%;
+        display: flex;
+        overflow-x: scroll;
+    }
 }
 
 
