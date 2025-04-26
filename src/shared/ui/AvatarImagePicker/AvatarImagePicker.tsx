@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
-import cls from './AvatarImagePicker.module.scss'
-import Button from '../Button/Button'
+import React, { useState } from "react"
+import cls from "./AvatarImagePicker.module.scss"
+import Button from "../Button/Button"
 export const AvatarImagePicker = () => {
-
   const [image, setImage] = useState<File | null>(null)
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,9 +20,7 @@ export const AvatarImagePicker = () => {
           {image && <img src={URL.createObjectURL(image)} alt="avatar" />}
         </div>
         <div className={cls.imageRedactor__actions}>
-          <Button>
-            close
-          </Button>
+          <Button>close</Button>
         </div>
       </div>
     </div>

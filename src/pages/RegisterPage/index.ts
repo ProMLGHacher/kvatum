@@ -1,3 +1,3 @@
-import { RegisterPage } from "./ui/RegisterPage";
+import { lazy } from "react"
 
-export default RegisterPage
+export const RegisterPage = lazy(() => import("./ui/RegisterPage"))

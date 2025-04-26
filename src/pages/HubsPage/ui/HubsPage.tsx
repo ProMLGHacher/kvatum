@@ -1,9 +1,9 @@
-import { HubId, useHubs } from "@/entities/useHub";
-import { Outlet, useParams } from "react-router-dom";
+import { HubId, hubsStore } from "@/entities/hubs"
+import { Outlet, useParams } from "react-router-dom"
 
-export const HubsPage = () => {
-  const { hubs } = useHubs();
-  const { hubId } = useParams<{ hubId: HubId }>();
+export default () => {
+  const { hubs } = hubsStore()
+  const { hubId } = useParams<{ hubId: HubId }>()
 
   if (!hubs) {
     return (
@@ -23,10 +23,10 @@ export const HubsPage = () => {
           ссылке-приглашению
         </p>
       </div>
-    );
+    )
   }
 
-  const hub = hubId ? hubs[hubId] : null;
+  const hub = hubId ? hubs[hubId] : null
 
   if (!hubId) {
     return (
@@ -43,7 +43,7 @@ export const HubsPage = () => {
         <h1>Хабы</h1>
         <p>Выберите хаб, чтобы начать общение</p>
       </div>
-    );
+    )
   }
 
   if (!hub) {
@@ -61,8 +61,8 @@ export const HubsPage = () => {
         <h1>Хаб не найден</h1>
         <p>Выберите хаб, чтобы начать общение</p>
       </div>
-    );
+    )
   }
 
-  return <Outlet />;
-};
+  return <Outlet />
+}

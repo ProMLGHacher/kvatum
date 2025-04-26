@@ -1,1 +1,3 @@
-export { ProfilePage } from './ui/ProfilePage'
+import { lazy } from "react"
+
+export const ProfilePage = lazy(() => import("./ui/ProfilePage"))

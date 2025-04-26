@@ -1,1 +1,3 @@
-export { ChatsPage } from './ui/ChatsPage'
+import { lazy } from "react"
+
+export const ChatsPage = lazy(() => import("./ui/ChatsPage"))

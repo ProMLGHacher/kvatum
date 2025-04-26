@@ -1,6 +1,3 @@
-
 export const GallerySkeleton = () => {
-    return (
-        <div>Gallery.skeleton</div>
-    )
+  return <div>Gallery.skeleton</div>
 }

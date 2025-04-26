@@ -1,22 +1,22 @@
-import { classNames } from "@/shared/lib/classNames/classNames";
-import { NavLink, Outlet, useParams } from "react-router-dom";
-import cls from "./ChannelPage.module.scss";
-import { useChannels } from "@/entities/useChannels/model/useChannels";
-import { connectToConferenceAction } from "@/features/conference/model/conferenceActionsts";
-import { HubParamsIds } from "@/features/hubs";
+import { classNames } from "@/shared/lib/classNames/classNames"
+import { NavLink, Outlet, useParams } from "react-router-dom"
+import cls from "./ChannelPage.module.scss"
+import { channelsStore } from "@/entities/channels/model/channelsStore"
+import { connectToConferenceAction } from "@/features/conference/model/conferenceActionsts"
+import { HubParamsIds } from "@/features/hubs"
 
-export const ChannelPage = () => {
-  const { hubId, workspaceId } = useParams<HubParamsIds>();
+export default () => {
+  const { hubId, workspaceId } = useParams<HubParamsIds>()
 
-  const { channels } = useChannels();
+  const { channels } = channelsStore()
 
-  if (!workspaceId) return <div>Что-то пошло не так.</div>;
+  if (!workspaceId) return <div>Что-то пошло не так.</div>
 
   if (!channels?.[workspaceId]) {
-    return <div>В этом рабочем пространстве нет каналов.</div>;
+    return <div>В этом рабочем пространстве нет каналов.</div>
   }
 
-  const channelsInWorkspace = Object.values(channels?.[workspaceId]);
+  const channelsInWorkspace = Object.values(channels?.[workspaceId])
 
   return (
     <main className={cls.serverMain}>
@@ -73,7 +73,7 @@ export const ChannelPage = () => {
                     color: "white",
                   }}
                   onClick={() => {
-                    connectToConferenceAction(channel.id);
+                    connectToConferenceAction(channel.id)
                   }}
                 >
                   Join
@@ -84,5 +84,5 @@ export const ChannelPage = () => {
       </nav>
       <Outlet />
     </main>
-  );
-};
+  )
+}

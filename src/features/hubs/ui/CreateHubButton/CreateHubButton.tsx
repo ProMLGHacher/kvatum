@@ -1,20 +1,20 @@
-import { PopUp } from "@/shared/ui/PopUp/PopUp/PopUp";
-import cls from "./CreateHubButton.module.scss";
-import { useState } from "react";
-import Button from "@/shared/ui/Button/Button";
-import Input from "@/shared/ui/Input/Input";
-import { createHubAction } from "../../model/createHub/createHub";
+import { PopUp } from "@/shared/ui/PopUp/PopUp/PopUp"
+import cls from "./CreateHubButton.module.scss"
+import { useState } from "react"
+import Button from "@/shared/ui/Button/Button"
+import Input from "@/shared/ui/Input/Input"
+import { createHubAction } from "../../model/createHub/createHub"
 
 export const CreateHubButton = () => {
-  const [isOpenCreateHubModal, setIsOpenCreateHubModal] = useState(false);
-  const [hubName, setHubName] = useState("");
+  const [isOpenCreateHubModal, setIsOpenCreateHubModal] = useState(false)
+  const [hubName, setHubName] = useState("")
 
   const handleCreateHub = async () => {
-    if (!hubName.trim()) return;
-    await createHubAction({ name: hubName });
-    setIsOpenCreateHubModal(false);
-    setHubName("");
-  };
+    if (!hubName.trim()) return
+    await createHubAction({ name: hubName })
+    setIsOpenCreateHubModal(false)
+    setHubName("")
+  }
 
   return (
     <>
@@ -41,5 +41,5 @@ export const CreateHubButton = () => {
         +
       </button>
     </>
-  );
-};
+  )
+}

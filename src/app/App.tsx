@@ -1,60 +1,62 @@
-import { useEffect, useState } from "react";
-import { AppRouter } from "./appRouter/AppRouter";
-import { configureTokenInterceptors } from "./lib/initTokenInterceptor";
-import { getUserAction } from "@/features/user/getUserAction/getUserAction";
-import { ContextMenuProvider } from "@/entities/useContextMenu/ui/ContextMenuProvider";
-import { ConfControlsProvider } from "@/widgets/ConfControlsProvider/ui/ConfControlsProvider";
-import { useSignallingChannel } from "@/entities/useSignallingChannel";
-import { configureConferenceSignallingChannel } from "@/features/conference/model/conferenceActionsts";
-import { ConferenceAudioProvider } from "@/features/conference/ui/ConferenceAudioProvider/ConferenceAudioProvider";
-import { useTokensData } from "@/entities/useTokensData";
-import { initHubsDataAction } from "@/features/hubs/model/initHubsData/initHubsData";
-import { useEventsChannel } from "@/entities/useEventsChannel";
-import { AppEventsProvider } from "@/process/appEventsProvider";
+import { useEffect, useState } from "react"
+import { AppRouter } from "./appRouter/AppRouter"
+import { configureTokenInterceptors } from "./lib/initTokenInterceptor"
+import { getUserAction } from "@/features/user/getUserAction/getUserAction"
+import { ContextMenuProvider } from "@/entities/contextMenu/ui/ContextMenuProvider"
+import { ConfControlsProvider } from "@/widgets/ConfControlsProvider/ui/ConfControlsProvider"
+import { signallingChannelStore } from "@/entities/signallingChannel"
+import { configureConferenceSignallingChannel } from "@/features/conference/model/conferenceActionsts"
+import { ConferenceAudioProvider } from "@/features/conference/ui/ConferenceAudioProvider/ConferenceAudioProvider"
+import { tokensDataStore } from "@/entities/tokensData"
+import { initHubsDataAction } from "@/features/hubs/model/initHubsData/initHubsData"
+import { eventsChannelStore } from "@/entities/eventsChannel"
+import { AppEventsProvider } from "@/process/appEventsProvider"
+import { mediaStreamStore } from "@/entities/mediaStream"
 
 export const App = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true)
 
-  const { accessToken, refreshToken } = useTokensData();
+  const { accessToken, refreshToken } = tokensDataStore()
 
   useEffect(() => {
     const init = async () => {
-      configureTokenInterceptors();
+      configureTokenInterceptors()
+      mediaStreamStore.getState().init()
       try {
-        await getUserAction();
+        await getUserAction()
       } catch (error) {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    init();
-  }, []);
+    }
+    init()
+  }, [])
 
   useEffect(() => {
     if (!(accessToken && refreshToken)) {
-      useSignallingChannel.getState().close();
-      useEventsChannel.getState().close();
-      return;
+      signallingChannelStore.getState().close()
+      eventsChannelStore.getState().close()
+      return
     }
     const init = async () => {
-      await initHubsDataAction();
+      await initHubsDataAction()
       try {
-        await useSignallingChannel.getState().connect();
+        await signallingChannelStore.getState().connect()
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
       try {
-        await useEventsChannel.getState().connect();
+        await eventsChannelStore.getState().connect()
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-      configureConferenceSignallingChannel();
-      setLoading(false);
-    };
-    init();
-  }, [accessToken, refreshToken]);
+      configureConferenceSignallingChannel()
+      setLoading(false)
+    }
+    init()
+  }, [accessToken, refreshToken])
 
   if (loading) {
-    return <div style={{ color: "white" }}>Гружу приложение...</div>;
+    return <div style={{ color: "white" }}>Гружу приложение...</div>
   }
 
   return (
@@ -67,5 +69,5 @@ export const App = () => {
         </ConfControlsProvider>
       </ContextMenuProvider>
     </AppEventsProvider>
-  );
-};
+  )
+}

@@ -1,27 +1,27 @@
-import cls from "./WorkSpacesList.module.scss";
-import { NavLink, useParams } from "react-router-dom";
-import { classNames } from "@/shared/lib/classNames/classNames";
-import { useWorkSpace } from "@/entities/useWorkSpcae";
-import { CreateWorkSpaceButton } from "../CreateWorkSpaceButton/CreateWorkSpaceButton";
-import { HubParamsIds } from "@/features/hubs";
+import cls from "./WorkSpacesList.module.scss"
+import { NavLink, useParams } from "react-router-dom"
+import { classNames } from "@/shared/lib/classNames/classNames"
+import { workSpaceStore } from "@/entities/workSpcae"
+import { CreateWorkSpaceButton } from "../CreateWorkSpaceButton/CreateWorkSpaceButton"
+import { HubParamsIds } from "@/features/hubs"
 
 export const WorkSpacesList = () => {
-  const { hubId } = useParams<HubParamsIds>();
-  const { workSpaces } = useWorkSpace();
+  const { hubId } = useParams<HubParamsIds>()
+  const { workSpaces } = workSpaceStore()
 
   if (!hubId) {
     return (
       <div>
         <h1>Вы не выбрали хаб</h1>
       </div>
-    );
+    )
   }
 
   if (!workSpaces?.[hubId]) {
-    return <h1>Пусто</h1>;
+    return <h1>Пусто</h1>
   }
 
-  const workSpaceList = Object.values(workSpaces?.[hubId]);
+  const workSpaceList = Object.values(workSpaces?.[hubId])
 
   return (
     <>
@@ -38,9 +38,9 @@ export const WorkSpacesList = () => {
             >
               {workSpace.name}
             </NavLink>
-          )
+          ),
       )}
       <CreateWorkSpaceButton />
     </>
-  );
-};
+  )
+}

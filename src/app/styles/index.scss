@@ -3,14 +3,14 @@
 
 html,
 body {
-    background-color: #121212;
+  background-color: #121212;
 }
 
 #root {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 ::-webkit-scrollbar {
-    display: none;
+  display: none;
 }

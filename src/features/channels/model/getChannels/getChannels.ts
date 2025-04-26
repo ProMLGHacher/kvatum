@@ -1,8 +1,8 @@
-import { channelsApi } from "@/entities/useChannels/api/channelsApi";
-import { useChannels } from "@/entities/useChannels/model/useChannels";
-import { WorkSpaceId } from "@/entities/useWorkSpcae";
+import { channelsApi } from "@/entities/channels/api/channelsApi"
+import { channelsStore } from "@/entities/channels/model/channelsStore"
+import { WorkSpaceId } from "@/entities/workSpcae"
 
 export const getChannelsAction = async (workspaceId: WorkSpaceId) => {
-  const channels = await channelsApi.getChannels(workspaceId);
-  useChannels.getState().setChannels(channels, workspaceId);
-};
+  const channels = await channelsApi.getChannels(workspaceId)
+  channelsStore.getState().setChannels(channels, workspaceId)
+}

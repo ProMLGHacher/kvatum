@@ -1,345 +1,396 @@
-import { useConference } from "@/entities/useConference"
-import { ConferenceUser } from "@/entities/useConference/model/types"
-import { useMediaStream } from "@/entities/useMediaStream"
-import { useSignallingChannel } from "@/entities/useSignallingChannel"
-import { useUserData } from "@/entities/useUserData"
+import { conferenceStore } from "@/entities/conference"
+import { ConferenceUser } from "@/entities/conference/model/types"
+import { mediaStreamStore } from "@/entities/mediaStream"
+import { signallingChannelStore } from "@/entities/signallingChannel"
+import { userDataStore } from "@/entities/userData"
 import { shallow } from "zustand/shallow"
 
-const configuration: RTCConfiguration = { 'iceServers': [{ 'urls': 'stun:global.stun.twilio.com:3478' }], iceTransportPolicy: 'all' }
+const configuration: RTCConfiguration = {
+  iceServers: [{ urls: "stun:global.stun.twilio.com:3478" }],
+  iceTransportPolicy: "all",
+}
 
 const abortController = new AbortController()
 
 export const connectToConferenceAction = async (id: string) => {
+  try {
+    await mediaStreamStore.getState().getMediaStream()
+  } catch (error) {
+    console.error(error)
+    return
+  }
+  conferenceStore.getState().setRoomId(id)
 
-    try {
-        await useMediaStream.getState().getMediaStream()
-    } catch (error) {
-        console.error(error)
-        return
+  signallingChannelStore.getState().sendMessage({
+    eventType: "JoinToRoom",
+    eventBody: {
+      roomId: id,
+      muted: !mediaStreamStore.getState().audio,
+      camera: mediaStreamStore.getState().video,
+    },
+  })
+
+  const unsubscribeVideo = mediaStreamStore.subscribe(
+    (state) => state.video,
+    changeVideoState,
+    { equalityFn: shallow },
+  )
+
+  const unsubscribeAudio = mediaStreamStore.subscribe(
+    (state) => state.audio,
+    changeMicroState,
+    { equalityFn: shallow },
+  )
+
+  const unsubscribeStream = mediaStreamStore.subscribe(
+    (state) => state.stream,
+    changeStreamState,
+    {
+      equalityFn: (prev, next) => {
+        console.log("equalityFn", prev, next)
+        console.log(prev?.id === next?.id)
+        return prev?.id === next?.id
+      },
+    },
+  )
+
+  abortController.signal.addEventListener("abort", () => {
+    unsubscribeVideo()
+    unsubscribeAudio()
+    unsubscribeStream()
+  })
+}
+
+const changeStreamState = async (stream: MediaStream) => {
+  console.log("changeStreamState")
+  if (!conferenceStore.getState().peers) return
+  const localMediaStream = stream
+  if (!localMediaStream) return
+  const tracks = localMediaStream.getTracks()
+
+  for (const peer of Object.values(conferenceStore.getState().peers!)) {
+    for (const sender of peer.pc.getSenders()) {
+      if (sender.track?.kind === "video") {
+        peer.pc.removeTrack(sender)
+      }
     }
-    useConference.getState().setRoomId(id)
-
-    useSignallingChannel.getState().sendMessage({
-        "eventType": "JoinToRoom",
-        "eventBody": {
-            "roomId": id,
-            "muted": !useMediaStream.getState().audio,
-            "camera": useMediaStream.getState().video
-        }
-    })
-
-    const unsubscribeVideo = useMediaStream.subscribe(
-        state => state.video,
-        changeVideoState,
-        { equalityFn: shallow }
-    )
-
-    const unsubscribeAudio = useMediaStream.subscribe(
-        state => state.audio,
-        changeMicroState,
-        { equalityFn: shallow }
-    )
-
-    abortController.signal.addEventListener('abort', () => {
-        unsubscribeVideo()
-        unsubscribeAudio()
-    })
+    for (const track of tracks) {
+      peer.pc.addTrack(track, localMediaStream)
+    }
+    await sendUpdateOffer(peer.pc, peer.id)
+  }
 }
 
 const changeVideoState = async (video: boolean) => {
-    if (!useConference.getState().peers) return
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    const localMediaStream = useMediaStream.getState().stream
-    if (!localMediaStream) return
-    useSignallingChannel.getState().sendMessage({
-        eventType: "ChangeVideoState",
-        eventBody: video
-    })
-    const videoTracks = localMediaStream.getVideoTracks()
-    console.log(videoTracks);
-    
-    for (const peer of Object.values(useConference.getState().peers!)) {
-        if (video) {
-            for (const track of videoTracks) {
-                peer.pc.addTrack(track, localMediaStream)
-            }
-            await sendUpdateOffer(peer.pc, peer.id)
-        } else {
-            for (const sender of peer.pc.getSenders()) {
-                if (sender.track?.kind === 'video') {
-                    peer.pc.removeTrack(sender)
-                }
-            }
-            await sendUpdateOffer(peer.pc, peer.id)
+  if (!conferenceStore.getState().peers) return
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  const localMediaStream = mediaStreamStore.getState().stream
+  if (!localMediaStream) return
+  signallingChannelStore.getState().sendMessage({
+    eventType: "ChangeVideoState",
+    eventBody: video,
+  })
+  const videoTracks = localMediaStream.getVideoTracks()
+  console.log(videoTracks)
+
+  for (const peer of Object.values(conferenceStore.getState().peers!)) {
+    if (video) {
+      for (const track of videoTracks) {
+        peer.pc.addTrack(track, localMediaStream)
+      }
+      await sendUpdateOffer(peer.pc, peer.id)
+    } else {
+      for (const sender of peer.pc.getSenders()) {
+        if (sender.track?.kind === "video") {
+          peer.pc.removeTrack(sender)
         }
+      }
+      await sendUpdateOffer(peer.pc, peer.id)
     }
+  }
 }
 
 const changeMicroState = (audio: boolean) => {
-    useSignallingChannel.getState().sendMessage({
-        eventType: "ChangeMicroState",
-        eventBody: audio
-    })
+  signallingChannelStore.getState().sendMessage({
+    eventType: "ChangeMicroState",
+    eventBody: audio,
+  })
 }
 
 export const disconnectFromConferenceAction = () => {
-    abortController.abort()
-    useMediaStream.getState().stopMediaStream()
-    useConference.getState().disconnectFromConference()
-    useSignallingChannel.getState().sendMessage({
-        eventType: "Disconnect"
-    })
+  abortController.abort()
+  mediaStreamStore.getState().stopMediaStream()
+  conferenceStore.getState().disconnectFromConference()
+  signallingChannelStore.getState().sendMessage({
+    eventType: "Disconnect",
+  })
 }
 
 export const configureConferenceSignallingChannel = () => {
-    console.log("configureConferenceSignallingChannel");
-    
-    useSignallingChannel.getState().onMessage(message => {
-        switch (message.eventType) {
-            case 'UserList':
-                console.log("UserList", message.users);
-                handleUserListMessage(message.users as ConferenceUser[])
-                break
-            case 'IceCandidate':
-                handleIceCandidateMessage(message.iceCandidate, message.from.id)
-                break
-            case 'Offer':
-                handleOfferMessage(message.offer, message.from as ConferenceUser)
-                break
-            case 'Answer':
-                handleAnswerMessage(message.answer, message.from.id)
-                break
-            case 'UpdateOffer':
-                handleUpdateOfferMessage(message.offer, message.from.id)
-                break
-            case 'UpdateAnswer':
-                handleUpdateAnswerMessage(message.answer, message.from.id)
-                break
-            case 'ChangeMicroState':
-                handleMicroStateMessage(message.isMicroMuted, message.from)
-                break
-            case 'ChangeVideoState':
-                handleCameraStateMessage(message.hasVideo, message.from)
-                break
-            case 'Disconnect':
-                handleDisconnectMessage(message.from)
-                break
-        }
-    })
+  console.log("configureConferenceSignallingChannel")
+
+  signallingChannelStore.getState().onMessage((message) => {
+    switch (message.eventType) {
+      case "UserList":
+        console.log("UserList", message.users)
+        handleUserListMessage(message.users as ConferenceUser[])
+        break
+      case "IceCandidate":
+        handleIceCandidateMessage(message.iceCandidate, message.from.id)
+        break
+      case "Offer":
+        handleOfferMessage(message.offer, message.from as ConferenceUser)
+        break
+      case "Answer":
+        handleAnswerMessage(message.answer, message.from.id)
+        break
+      case "UpdateOffer":
+        handleUpdateOfferMessage(message.offer, message.from.id)
+        break
+      case "UpdateAnswer":
+        handleUpdateAnswerMessage(message.answer, message.from.id)
+        break
+      case "ChangeMicroState":
+        handleMicroStateMessage(message.isMicroMuted, message.from)
+        break
+      case "ChangeVideoState":
+        handleCameraStateMessage(message.hasVideo, message.from)
+        break
+      case "Disconnect":
+        handleDisconnectMessage(message.from)
+        break
+    }
+  })
 }
 
 const handleDisconnectMessage = (from: string) => {
-    useConference.getState().removePeerConnection(from)
+  conferenceStore.getState().removePeerConnection(from)
 }
 
 const handleMicroStateMessage = (state: boolean, from: string) => {
-    useConference.getState().setUserMuted(state, from)
+  conferenceStore.getState().setUserMuted(state, from)
 }
 
 const handleCameraStateMessage = (state: boolean, from: string) => {
-    useConference.getState().setUserCamera(state, from)
-    if (!state) {
-        useConference.getState().peers![from].pc.getReceivers().forEach(receiver => {
-            if (receiver.track?.kind === 'video') {
-                receiver.track.stop()
-            }
-        });
-    }
+  conferenceStore.getState().setUserCamera(state, from)
+  if (!state) {
+    conferenceStore
+      .getState()
+      .peers![from].pc.getReceivers()
+      .forEach((receiver) => {
+        if (receiver.track?.kind === "video") {
+          receiver.track.stop()
+        }
+      })
+  }
 }
 
 const sendUpdateOffer = async (pc: RTCPeerConnection, id: string) => {
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    useSignallingChannel.getState().sendMessage({
-        "eventType": "UpdateOffer",
-        "eventBody": {
-            "offer": offer,
-            "from": useUserData.getState().id,
-            "to": id
-        }
-    });
+  const offer = await pc.createOffer()
+  await pc.setLocalDescription(offer)
+  signallingChannelStore.getState().sendMessage({
+    eventType: "UpdateOffer",
+    eventBody: {
+      offer: offer,
+      from: userDataStore.getState().id,
+      to: id,
+    },
+  })
 }
 
 const handleUserListMessage = (users: ConferenceUser[]) => {
-    users.forEach(user => {
-        makeCall(user)
-    })
+  users.forEach((user) => {
+    makeCall(user)
+  })
 }
 
 const makeCall = async (user: ConferenceUser) => {
-    console.log("makeCall", user);
-    const pc = createPeerConnection(user)
-    useConference.getState().addPeerConnection({
-        id: user.id,
-        pc,
-        audioTrack: null,
-        videoTrack: null,
-        volume: 100,
-        user: user,
-        isMicroMuted: user.isMicroMuted,
-        hasVideo: user.hasVideo,
-        state: 'pending'
-    })
+  console.log("makeCall", user)
+  const pc = createPeerConnection(user)
+  conferenceStore.getState().addPeerConnection({
+    id: user.id,
+    pc,
+    audioTrack: null,
+    videoTrack: null,
+    volume: 100,
+    user: user,
+    isMicroMuted: user.isMicroMuted,
+    hasVideo: user.hasVideo,
+    state: "pending",
+  })
 
-    configurePeerConnectionTracks(pc)
+  configurePeerConnectionTracks(pc)
 
-    // useSignallingChannel.getState().onMessage(handleAnswerMessage(pc))
+  // signallingChannelStore.getState().onMessage(handleAnswerMessage(pc))
 
-    const offer = await pc.createOffer()
-    await pc.setLocalDescription(offer)
-    useSignallingChannel.getState().sendMessage({
-        "eventType": "Offer",
-        "eventBody": {
-            "offer": offer,
-            "from": useUserData.getState().id,
-            "to": user.id
-        }
-    })
+  const offer = await pc.createOffer()
+  await pc.setLocalDescription(offer)
+  signallingChannelStore.getState().sendMessage({
+    eventType: "Offer",
+    eventBody: {
+      offer: offer,
+      from: userDataStore.getState().id,
+      to: user.id,
+    },
+  })
 }
 
-
-
 const createPeerConnection = (user: ConferenceUser) => {
-    const peerConnection = new RTCPeerConnection(configuration)
+  const peerConnection = new RTCPeerConnection(configuration)
 
-    peerConnection.addEventListener('icecandidate', onIceCandidate(user))
-    peerConnection.addEventListener("track", onTrack(user.id))
-    peerConnection.addEventListener('connectionstatechange', handleConnectionStateChange(peerConnection, user))
-    // useSignallingChannel.getState().onMessage(handleIceCandidateMessage(peerConnection))
+  peerConnection.addEventListener("icecandidate", onIceCandidate(user))
+  peerConnection.addEventListener("track", onTrack(user.id))
+  peerConnection.addEventListener(
+    "connectionstatechange",
+    handleConnectionStateChange(peerConnection, user),
+  )
+  // signallingChannelStore.getState().onMessage(handleIceCandidateMessage(peerConnection))
 
-    return peerConnection
+  return peerConnection
 }
 
 const configurePeerConnectionTracks = (pc: RTCPeerConnection) => {
-    useMediaStream.getState().stream?.getTracks().forEach(track => {
-        pc.addTrack(track)
+  mediaStreamStore
+    .getState()
+    .stream?.getTracks()
+    .forEach((track) => {
+      pc.addTrack(track)
     })
-    // useMediaStream.getState().stream!.onaddtrack = (event) => {
-    //     pc.addTrack(event.track)
-    // }
-    // useMediaStream.getState().stream!.onremovetrack = (event) => {
-    //     pc.getSenders().forEach(sender => {
-    //         if (sender.track?.kind === event.track.kind) {
-    //             pc.removeTrack(sender)
-    //         }
-    //     })
-    // }
+  // mediaStreamStore.getState().stream!.onaddtrack = (event) => {
+  //     pc.addTrack(event.track)
+  // }
+  // mediaStreamStore.getState().stream!.onremovetrack = (event) => {
+  //     pc.getSenders().forEach(sender => {
+  //         if (sender.track?.kind === event.track.kind) {
+  //             pc.removeTrack(sender)
+  //         }
+  //     })
+  // }
 }
 
-const onIceCandidate = (user: ConferenceUser) => (event: RTCPeerConnectionIceEvent) => {
+const onIceCandidate =
+  (user: ConferenceUser) => (event: RTCPeerConnectionIceEvent) => {
     const candidate = event.candidate
     if (candidate) {
-        useSignallingChannel.getState().sendMessage({
-            "eventType": "IceCandidate",
-            "eventBody": {
-                "iceCandidate": candidate,
-                "from": useUserData.getState().id,
-                "to": user.id
-            }
-        })
+      signallingChannelStore.getState().sendMessage({
+        eventType: "IceCandidate",
+        eventBody: {
+          iceCandidate: candidate,
+          from: userDataStore.getState().id,
+          to: user.id,
+        },
+      })
     }
-}
-
+  }
 
 const onTrack = (userId: string) => (event: RTCTrackEvent) => {
+  console.log("NEW TRACK", event.track.kind)
+  console.log("NEW TRACK", event.track.enabled)
+  console.log("NEW TRACK", event.track)
 
-    console.log("NEW TRACK", event.track.kind);
-    console.log("NEW TRACK", event.track.enabled);
-    console.log("NEW TRACK", event.track);
-    
-
-    if (event.track.kind === 'audio') {
-        useConference.getState().setPeerConnectionAudioTrack(userId, event.track)
-    } else if (event.track.kind === 'video') {
-        useConference.getState().setPeerConnectionVideoTrack(userId, event.track)
-    }
-
+  if (event.track.kind === "audio") {
+    conferenceStore.getState().setPeerConnectionAudioTrack(userId, event.track)
+  } else if (event.track.kind === "video") {
+    conferenceStore.getState().setPeerConnectionVideoTrack(userId, event.track)
+  }
 }
 
-const handleConnectionStateChange = (pc: RTCPeerConnection, user: ConferenceUser) => () => {
+const handleConnectionStateChange =
+  (pc: RTCPeerConnection, user: ConferenceUser) => () => {
+    if (pc.connectionState === "connected") {
+      conferenceStore.getState().setPeerConnectionState(user.id, "connected")
+    }
+    if (pc.connectionState === "disconnected") {
+      conferenceStore.getState().removePeerConnection(user.id)
+    }
+  }
 
-    if (pc.connectionState === 'connected') {
-        useConference.getState().setPeerConnectionState(user.id, 'connected')
-    }
-    if (pc.connectionState === 'disconnected') {
-        useConference.getState().removePeerConnection(user.id)
-    }
+const handleIceCandidateMessage = (
+  iceCandidate: RTCIceCandidate,
+  from: string,
+) => {
+  try {
+    conferenceStore.getState().peers![from].pc.addIceCandidate(iceCandidate)
+  } catch (e) {
+    console.error("Error adding received ice candidate", e)
+  }
 }
 
-const handleIceCandidateMessage = (iceCandidate: RTCIceCandidate, from: string) => {
-    try {
-        useConference.getState().peers![from].pc.addIceCandidate(iceCandidate)
-    } catch (e) {
-        console.error('Error adding received ice candidate', e)
-    }
-}
-
-const handleUpdateOfferMessage = async (offer: RTCSessionDescriptionInit, from: string) => {
-    if (offer) {
-        await useConference.getState().peers![from].pc.setRemoteDescription(new RTCSessionDescription(offer))
-        const answer = await useConference.getState().peers![from].pc.createAnswer()
-        await useConference.getState().peers![from].pc.setLocalDescription(answer)
-        useSignallingChannel.getState().sendMessage({
-            "eventType": "UpdateAnswer",
-            "eventBody": {
-                "answer": answer,
-                "From": useUserData.getState().id,
-                "To": from
-            }
-        })
-    }
+const handleUpdateOfferMessage = async (
+  offer: RTCSessionDescriptionInit,
+  from: string,
+) => {
+  if (offer) {
+    await conferenceStore
+      .getState()
+      .peers![from].pc.setRemoteDescription(new RTCSessionDescription(offer))
+    const answer = await conferenceStore.getState().peers![from].pc.createAnswer()
+    await conferenceStore.getState().peers![from].pc.setLocalDescription(answer)
+    signallingChannelStore.getState().sendMessage({
+      eventType: "UpdateAnswer",
+      eventBody: {
+        answer: answer,
+        From: userDataStore.getState().id,
+        To: from,
+      },
+    })
+  }
 }
 
 const handleUpdateAnswerMessage = async (answer: any, from: string) => {
-    if (answer) {
-        await useConference.getState().peers![from].pc.setRemoteDescription(new RTCSessionDescription(answer))
-    }
+  if (answer) {
+    await conferenceStore
+      .getState()
+      .peers![from].pc.setRemoteDescription(new RTCSessionDescription(answer))
+  }
 }
-
 
 const handleAnswerMessage = async (answer: any, from: string) => {
-    console.log(answer);
-    console.log(from);
+  console.log(answer)
+  console.log(from)
 
-    try {
-        await useConference.getState().peers![from].pc.setRemoteDescription(new RTCSessionDescription(answer))
-    } catch (error) {
-        console.error('Error adding received answer', error);
-    }
+  try {
+    await conferenceStore
+      .getState()
+      .peers![from].pc.setRemoteDescription(new RTCSessionDescription(answer))
+  } catch (error) {
+    console.error("Error adding received answer", error)
+  }
 }
 
+const handleOfferMessage = async (
+  offer: RTCSessionDescriptionInit,
+  user: ConferenceUser,
+) => {
+  const peerConnection = createPeerConnection(user)
+  configurePeerConnectionTracks(peerConnection)
+  conferenceStore.getState().addPeerConnection({
+    id: user.id,
+    pc: peerConnection,
+    audioTrack: null,
+    videoTrack: null,
+    volume: 100,
+    user: user,
+    isMicroMuted: user.isMicroMuted,
+    hasVideo: user.hasVideo,
+    state: "pending",
+  })
 
-const handleOfferMessage = async (offer: RTCSessionDescriptionInit, user: ConferenceUser) => {
-    const peerConnection = createPeerConnection(user)
-    configurePeerConnectionTracks(peerConnection)
-    useConference.getState().addPeerConnection({
-        id: user.id,
-        pc: peerConnection,
-        audioTrack: null,
-        videoTrack: null,
-        volume: 100,
-        user: user,
-        isMicroMuted: user.isMicroMuted,
-        hasVideo: user.hasVideo,
-        state: 'pending'
-    })
-
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
-    const answer = await peerConnection.createAnswer()
-    await peerConnection.setLocalDescription(answer)
-    useSignallingChannel.getState().sendMessage({
-        "eventType": "Answer",
-        "eventBody": {
-            "Answer": answer,
-            "From": useUserData.getState().id,
-            "To": user.id
-        }
-    })
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
+  const answer = await peerConnection.createAnswer()
+  await peerConnection.setLocalDescription(answer)
+  signallingChannelStore.getState().sendMessage({
+    eventType: "Answer",
+    eventBody: {
+      Answer: answer,
+      From: userDataStore.getState().id,
+      To: user.id,
+    },
+  })
 }
-
 
 // const listenNewConnections = async (stream: MediaStream) => {
-//     useSignallingChannel.getState().onMessage(async (event) => {
+//     signallingChannelStore.getState().onMessage(async (event) => {
 //         if (event.data.offer) {
 //             const peerConnection = createPeerConnection()
 //             configurePeerConnectionTracks(peerConnection, stream)
@@ -347,7 +398,7 @@ const handleOfferMessage = async (offer: RTCSessionDescriptionInit, user: Confer
 //             await peerConnection.setRemoteDescription(new RTCSessionDescription(event.data.offer))
 //             const answer = await peerConnection.createAnswer()
 //             await peerConnection.setLocalDescription(answer)
-//             useSignallingChannel.getState().sendMessage({ 'answer': answer })
+//             signallingChannelStore.getState().sendMessage({ 'answer': answer })
 //         }
 //     })
 // }

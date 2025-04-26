@@ -6,7 +6,7 @@
   width: 100%;
   background-color: transparent;
 }
- 
+
 .input:focus ~ .suffixIcon {
   display: none;
 }
@@ -20,9 +20,11 @@
   width: 100%;
   padding: 16px 20px;
   font-size: 16px;
-  border: 1.2px solid #FFFFFF;
+  border: 1.2px solid #ffffff;
   border-radius: 10px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   background-color: transparent;
   color: white;
 
@@ -46,7 +48,8 @@
   padding-right: 40px; // Increased padding right if suffix exists
 }
 
-.prefixIcon, .suffixIcon {
+.prefixIcon,
+.suffixIcon {
   position: absolute;
   display: flex;
   align-items: center;

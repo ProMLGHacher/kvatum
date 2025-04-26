@@ -1,15 +1,15 @@
-import cls from "./HubsList.module.scss";
-import { NavLink } from "react-router-dom";
-import { classNames } from "@/shared/lib/classNames/classNames";
-import { useHubs } from "@/entities/useHub";
-import { CreateHubButton } from "../CreateHubButton/CreateHubButton";
-import { useContextMenu } from "@/entities/useContextMenu";
-import { createHubInvite } from "../../model/createHubInvite/createHubInvite";
+import cls from "./HubsList.module.scss"
+import { NavLink } from "react-router-dom"
+import { classNames } from "@/shared/lib/classNames/classNames"
+import { hubsStore } from "@/entities/hubs"
+import { CreateHubButton } from "../CreateHubButton/CreateHubButton"
+import { contextMenuStore } from "@/entities/contextMenu"
+import { createHubInvite } from "../../model/createHubInvite/createHubInvite"
 
 export const HubsList = () => {
-  const { hubs } = useHubs();
+  const { hubs } = hubsStore()
 
-  const { openContextMenu } = useContextMenu();
+  const { openContextMenu } = contextMenuStore()
 
   return (
     <>
@@ -19,7 +19,7 @@ export const HubsList = () => {
           title={hub.name}
           key={hub.id}
           onContextMenu={(e) => {
-            e.preventDefault();
+            e.preventDefault()
             openContextMenu(
               [
                 {
@@ -27,13 +27,13 @@ export const HubsList = () => {
                   icon: "🔗",
                   id: "createInvite",
                   onClick: async () => {
-                    const inviteLink = await createHubInvite(hub.id);
-                    navigator.clipboard.writeText(inviteLink);
+                    const inviteLink = await createHubInvite(hub.id)
+                    navigator.clipboard.writeText(inviteLink)
                   },
                 },
               ],
-              { x: e.clientX, y: e.clientY }
-            );
+              { x: e.clientX, y: e.clientY },
+            )
           }}
           style={{ backgroundColor: hub.hexColor }}
           className={({ isActive }) =>
@@ -51,5 +51,5 @@ export const HubsList = () => {
       ))}
       <CreateHubButton />
     </>
-  );
-};
+  )
+}

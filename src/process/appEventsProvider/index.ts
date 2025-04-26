@@ -3,6 +3,6 @@ export type {
   AppEvents,
   NewRoomEvent,
   RoomUpdatedEvent,
-} from "./types";
+} from "./types"
 
-export { AppEventsProvider } from "./appEventsProvider";
+export { AppEventsProvider } from "./appEventsProvider"

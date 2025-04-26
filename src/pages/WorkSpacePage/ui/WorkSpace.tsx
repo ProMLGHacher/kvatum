@@ -1,10 +1,10 @@
-import { WorkSpacesList } from "@/features/workSpaces/ui/WorkSpacesList/WorkSpacesList";
-import cls from "./WorkSpace.module.scss";
-import { useParams, Outlet } from "react-router-dom";
-import { HubParamsIds } from "@/features/hubs/";
+import { WorkSpacesList } from "@/features/workSpaces/ui/WorkSpacesList/WorkSpacesList"
+import cls from "./WorkSpace.module.scss"
+import { useParams, Outlet } from "react-router-dom"
+import { HubParamsIds } from "@/features/hubs/"
 
-export const WorkSpacePage = () => {
-  const { workspaceId, hubId } = useParams<HubParamsIds>();
+export default () => {
+  const { workspaceId, hubId } = useParams<HubParamsIds>()
 
   if (!hubId) {
     return (
@@ -18,7 +18,7 @@ export const WorkSpacePage = () => {
       >
         <h1>Произошло чтото непредвиденное. Перезайдите в приложение</h1>
       </div>
-    );
+    )
   }
 
   return (
@@ -42,5 +42,5 @@ export const WorkSpacePage = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}

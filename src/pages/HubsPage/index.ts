@@ -1,3 +1,3 @@
-import { HubsPage } from "./ui/HubsPage";
+import { lazy } from "react"
 
-export default HubsPage
+export const HubsPage = lazy(() => import("./ui/HubsPage"))

@@ -1,28 +1,28 @@
-import { useParams } from "react-router-dom";
-import cls from "./ServerInfoPage.module.scss";
-import { useHubs } from "@/entities/useHub";
-import { useWorkSpace } from "@/entities/useWorkSpcae";
-import { useChannels } from "@/entities/useChannels/model/useChannels";
-import { ChannelView } from "@/widgets/ChannelView/ui/ChannelView";
-import { useServerContentWindowsState } from "@/entities/useServerContentWindowsState";
-import Button from "@/shared/ui/Button/Button";
-import { BsLayoutTextWindow, BsLayoutTextWindowReverse } from "react-icons/bs";
-import { HubParamsIds } from "@/features/hubs";
+import { useParams } from "react-router-dom"
+import cls from "./ServerInfoPage.module.scss"
+import { hubsStore } from "@/entities/hubs"
+import { workSpaceStore } from "@/entities/workSpcae"
+import { channelsStore } from "@/entities/channels/model/channelsStore"
+import { ChannelView } from "@/widgets/ChannelView/ui/ChannelView"
+import { hubsContentWindowsState } from "@/entities/hubsContentWindowsState"
+import Button from "@/shared/ui/Button/Button"
+import { BsLayoutTextWindow, BsLayoutTextWindowReverse } from "react-icons/bs"
+import { HubParamsIds } from "@/features/hubs"
 
-export const ServerInfoPage = () => {
-  const { channelId, workspaceId, hubId } = useParams<HubParamsIds>();
-  const { hubs } = useHubs();
-  const { workSpaces } = useWorkSpace();
-  const { channels } = useChannels();
+export default () => {
+  const { channelId, workspaceId, hubId } = useParams<HubParamsIds>()
+  const { hubs } = hubsStore()
+  const { workSpaces } = workSpaceStore()
+  const { channels } = channelsStore()
   const { chatIsOpen, conferenceIsOpen, setChatIsOpen, setConferenceIsOpen } =
-    useServerContentWindowsState();
+    hubsContentWindowsState()
 
   if (!hubId || !workspaceId || !channelId)
-    return <div>Этот канал не найден.</div>;
+    return <div>Этот канал не найден.</div>
 
-  const channel = channels?.[workspaceId]?.[channelId];
-  const currentHub = hubs?.[hubId];
-  const currentWorkSpace = workSpaces?.[hubId]?.[workspaceId];
+  const channel = channels?.[workspaceId]?.[channelId]
+  const currentHub = hubs?.[hubId]
+  const currentWorkSpace = workSpaces?.[hubId]?.[workspaceId]
 
   return (
     <div className={cls.serverInfo}>
@@ -63,5 +63,5 @@ export const ServerInfoPage = () => {
       </div>
       {channel && <ChannelView channel={channel} />}
     </div>
-  );
-};
+  )
+}

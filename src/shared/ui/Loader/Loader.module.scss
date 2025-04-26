@@ -1,17 +1,17 @@
 .loader {
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    border: 2px solid grey;
-    border-top: 2px solid white;
-    animation: spin 2s infinite linear;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  border: 2px solid grey;
+  border-top: 2px solid white;
+  animation: spin 2s infinite linear;
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

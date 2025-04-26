@@ -1,37 +1,38 @@
-import { useConference } from "@/entities/useConference"
-import { useTokensData } from "@/entities/useTokensData"
-// import { useMediaStream } from "@/entities/useMediaStream"
+import { conferenceStore } from "@/entities/conference"
+import { tokensDataStore } from "@/entities/tokensData"
+// import { mediaStreamStore } from "@/entities/mediaStreamStore"
 import { useEffect } from "react"
 
+export const ConferenceAudioProvider = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => {
+  const { accessToken, refreshToken } = tokensDataStore()
 
-export const ConferenceAudioProvider = ({ children }: { children: React.ReactNode }) => {
+  if (!accessToken || !refreshToken) return children
 
-    const { accessToken, refreshToken } = useTokensData()
+  const { peers } = conferenceStore()
 
-    if (!accessToken || !refreshToken) return children
+  useEffect(() => {
+    if (!peers) return
+    const audio = new Audio()
+    const stream = new MediaStream()
 
-    const { peers } = useConference()
+    Object.values(peers).forEach((peer) => {
+      if (peer.state !== "connected") return
+      if (!peer.audioTrack) return
+      stream.addTrack(peer.audioTrack)
+    })
 
+    audio.srcObject = stream
+    audio.play()
 
-    useEffect(() => {
-        if (!peers) return
-        const audio = new Audio()
-        const stream = new MediaStream()
+    return () => {
+      audio.pause()
+      audio.srcObject = null
+    }
+  }, [peers])
 
-        Object.values(peers).forEach(peer => {
-            if (peer.state !== 'connected') return
-            if (!peer.audioTrack) return
-            stream.addTrack(peer.audioTrack)
-        })
-
-        audio.srcObject = stream
-        audio.play()
-
-        return () => {
-            audio.pause()
-            audio.srcObject = null
-        }
-    }, [peers])
-
-    return children
+  return children
 }

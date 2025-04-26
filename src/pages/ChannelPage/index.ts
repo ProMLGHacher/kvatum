@@ -1,3 +1,3 @@
-import { ChannelPage } from "./ui/ChannelPage";
+import { lazy } from "react"
 
-export default ChannelPage
+export const ChannelPage = lazy(() => import("./ui/ChannelPage"))

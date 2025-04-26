@@ -35,13 +35,13 @@ declare global {
 
   export type Color = string
 
-  export type AccessToken = Brand<string, 'AccessToken'>
-  export type RefreshToken = Brand<string, 'RefreshToken'>
+  export type AccessToken = Brand<string, "AccessToken">
+  export type RefreshToken = Brand<string, "RefreshToken">
 
   export function taggedError<T>(name: string, error: T) {
-    console.error(name, error);
+    console.error(name, error)
     return error
   }
 }
 
-export { }
+export {}

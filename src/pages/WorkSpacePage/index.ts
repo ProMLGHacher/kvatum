@@ -1,3 +1,3 @@
-import { WorkSpacePage } from "./ui/WorkSpace";
+import { lazy } from "react"
 
-export default WorkSpacePage
+export const WorkSpacePage = lazy(() => import("./ui/WorkSpace"))

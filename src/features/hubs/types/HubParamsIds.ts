@@ -1,9 +1,9 @@
-import { ChannelId } from "@/entities/useChannels";
-import { HubId } from "@/entities/useHub";
-import { WorkSpaceId } from "@/entities/useWorkSpcae";
+import { ChannelId } from "@/entities/channels"
+import { HubId } from "@/entities/hubs"
+import { WorkSpaceId } from "@/entities/workSpcae"
 
 export type HubParamsIds = {
-  hubId: HubId;
-  workspaceId: WorkSpaceId;
-  channelId: ChannelId;
-};
+  hubId: HubId
+  workspaceId: WorkSpaceId
+  channelId: ChannelId
+}

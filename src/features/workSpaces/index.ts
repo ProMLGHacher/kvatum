@@ -1,1 +1,1 @@
-export { getHubWorkSpacesAction } from "./model/getHubWorkSpaces/getHubWorkSpaces";
+export { getHubWorkSpacesAction } from "./model/getHubWorkSpaces/getHubWorkSpaces"

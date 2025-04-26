@@ -1,8 +1,8 @@
-import { ServerState } from "./types";
+import { ServerState } from "./types"
 
-import { create } from "zustand";
+import { create } from "zustand"
 
 export const useServerState = create<ServerState>((set) => ({
-    serverId: null,
-    setServerId: (server) => set({ serverId: server }),
-})) 
+  serverId: null,
+  setServerId: (server) => set({ serverId: server }),
+}))

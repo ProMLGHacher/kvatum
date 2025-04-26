@@ -1,3 +1,3 @@
-import { ServerInfoPage } from "./ui/ServerInfoPage";
+import { lazy } from "react"
 
-export default ServerInfoPage
+export const ServerInfoPage = lazy(() => import("./ui/ServerInfoPage"))

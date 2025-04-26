@@ -1,16 +1,16 @@
-import ChannelPage from "@/pages/ChannelPage";
-import LoginPage from "@/pages/LoginPage";
-import MainPage from "@/pages/main";
-import RegisterPage from "@/pages/RegisterPage";
-import ServerInfoPage from "@/pages/ServerInfoPage";
-import HubsPage from "@/pages/HubsPage";
-import WorkSpacePage from "@/pages/WorkSpacePage";
-import { Route } from "./types";
-import { UserRole } from "@/entities/useUserData";
-import { Navigate } from "react-router-dom";
-import { ProfilePage } from "@/pages/ProfilePage";
-import { ChatsPage } from "@/pages/ChatsPage";
-import { AcceptInvitePage } from "@/pages/AcceptInvitePage/AcceptInvitePage";
+import { ChannelPage } from "@/pages/ChannelPage"
+import { LoginPage } from "@/pages/LoginPage"
+import { MainPage } from "@/pages/main"
+import { RegisterPage } from "@/pages/RegisterPage"
+import { ServerInfoPage } from "@/pages/ServerInfoPage"
+import { HubsPage } from "@/pages/HubsPage"
+import { WorkSpacePage } from "@/pages/WorkSpacePage"
+import { Route } from "./types"
+import { UserRole } from "@/entities/userData"
+import { Navigate } from "react-router-dom"
+import { ProfilePage } from "@/pages/ProfilePage"
+import { ChatsPage } from "@/pages/ChatsPage"
+import { AcceptInvitePage } from "@/pages/AcceptInvitePage"
 
 export const routes: Route[] = [
   {
@@ -71,4 +71,4 @@ export const routes: Route[] = [
     redirect: "/main",
     roles: [UserRole.GUEST],
   },
-];
+]

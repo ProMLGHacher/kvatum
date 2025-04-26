@@ -1,8 +1,7 @@
-import { useTokensData } from "@/entities/useTokensData";
-import { useUserData } from "@/entities/useUserData";
+import { tokensDataStore } from "@/entities/tokensData"
+import { userDataStore } from "@/entities/userData"
 
 export const logOutAction = async () => {
-    useTokensData.getState().clearTokens();
-    useUserData.getState().clearUserData();
+  tokensDataStore.getState().clearTokens()
+  userDataStore.getState().clearUserData()
 }
-

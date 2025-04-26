@@ -1,19 +1,15 @@
-import cls from './Chat.module.scss';
-import { Channel } from '@/entities/useChannels';
+import cls from "./Chat.module.scss"
+import { Channel } from "@/entities/channels"
 
 export type ChatProps = {
-    channel?: Channel;
+  channel?: Channel
 }
 
 export const Chat = (props: ChatProps) => {
-    return (
-        <div className={cls.chat}>
-            {props.channel && <div>
-                {props.channel.name}
-            </div>}
-            <div>
-                Comming soon...
-            </div>
-        </div>
-    )
+  return (
+    <div className={cls.chat}>
+      {props.channel && <div>{props.channel.name}</div>}
+      <div>Comming soon...</div>
+    </div>
+  )
 }

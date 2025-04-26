@@ -1,7 +1,7 @@
-import cls from "./PopUp.module.scss";
-import { classNames } from "@/shared/lib/classNames/classNames";
-import { OverlayingPopup } from "../OverlayingPopup/OverlayingPopup";
-import { motion } from "framer-motion";
+import cls from "./PopUp.module.scss"
+import { classNames } from "@/shared/lib/classNames/classNames"
+import { OverlayingPopup } from "../OverlayingPopup/OverlayingPopup"
+import { motion } from "framer-motion"
 
 export const PopUp = ({
   children,
@@ -9,10 +9,10 @@ export const PopUp = ({
   isOpened,
   className,
 }: {
-  children: React.ReactNode;
-  onClose: () => void;
-  isOpened: boolean;
-  className?: string;
+  children: React.ReactNode
+  onClose: () => void
+  isOpened: boolean
+  className?: string
 }) => {
   return (
     <OverlayingPopup onClose={onClose} isOpened={isOpened}>
@@ -26,5 +26,5 @@ export const PopUp = ({
         {children}
       </motion.div>
     </OverlayingPopup>
-  );
-};
+  )
+}
