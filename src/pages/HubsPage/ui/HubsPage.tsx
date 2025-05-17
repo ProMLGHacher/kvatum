@@ -1,5 +1,5 @@
 import { HubId, hubsStore } from "@/entities/hubs"
-import { Outlet, useParams } from "react-router-dom"
+import { Outlet, useParams } from "react-router"
 
 export default () => {
   const { hubs } = hubsStore()

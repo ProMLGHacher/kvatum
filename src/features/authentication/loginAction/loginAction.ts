@@ -14,7 +14,7 @@ export const loginAction = async (loginBody: LoginBody) => {
       if (error.response?.status === 401) {
         throw new ActionError("Не верный логин или пароль")
       }
-      throw new ActionError("axios error")
+      throw new ActionError(error.message)
     } else {
       throw new ActionError(
         "Чтото пошло не так попробуйте перезагрузить страницу",

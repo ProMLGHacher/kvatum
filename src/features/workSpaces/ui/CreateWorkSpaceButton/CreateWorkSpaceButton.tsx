@@ -4,7 +4,7 @@ import { useState } from "react"
 import Button from "@/shared/ui/Button/Button"
 import Input from "@/shared/ui/Input/Input"
 import { createWorkSpaceAction } from "../../model/createWorkSpace/createWorkSpace"
-import { useParams } from "react-router-dom"
+import { useParams } from "react-router"
 import { HubId } from "@/entities/hubs"
 
 export const CreateWorkSpaceButton = () => {

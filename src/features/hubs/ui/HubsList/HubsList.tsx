@@ -1,5 +1,5 @@
 import cls from "./HubsList.module.scss"
-import { NavLink } from "react-router-dom"
+import { NavLink } from "react-router"
 import { classNames } from "@/shared/lib/classNames/classNames"
 import { hubsStore } from "@/entities/hubs"
 import { CreateHubButton } from "../CreateHubButton/CreateHubButton"

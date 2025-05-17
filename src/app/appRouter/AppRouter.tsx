@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom"
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router"
 import { processRoutes } from "./processRoutes"
 import { routes } from "./routes"
 

@@ -12,6 +12,10 @@ import { initHubsDataAction } from "@/features/hubs/model/initHubsData/initHubsD
 import { eventsChannelStore } from "@/entities/eventsChannel"
 import { AppEventsProvider } from "@/process/appEventsProvider"
 import { mediaStreamStore } from "@/entities/mediaStream"
+import { ToastProvider } from "@/shared/ui/Toast/ui/ToastProvider"
+import { toast as toastFunction } from "@/shared/ui/Toast/model/toast"
+
+globalThis.toast = toastFunction
 
 export const App = () => {
   const [loading, setLoading] = useState(true)
@@ -61,14 +65,16 @@ export const App = () => {
   }
 
   return (
-    <AppEventsProvider>
-      <ContextMenuProvider>
-        <ConfControlsProvider>
-          <ConferenceAudioProvider>
-            <AppRouter />
-          </ConferenceAudioProvider>
-        </ConfControlsProvider>
-      </ContextMenuProvider>
-    </AppEventsProvider>
+    <ToastProvider>
+      <AppEventsProvider>
+        <ContextMenuProvider>
+          <ConfControlsProvider>
+            <ConferenceAudioProvider>
+              <AppRouter />
+            </ConferenceAudioProvider>
+          </ConfControlsProvider>
+        </ContextMenuProvider>
+      </AppEventsProvider>
+    </ToastProvider>
   )
 }

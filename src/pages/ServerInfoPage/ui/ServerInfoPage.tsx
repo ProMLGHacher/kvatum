@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { useParams } from "react-router"
 import cls from "./ServerInfoPage.module.scss"
 import { hubsStore } from "@/entities/hubs"
 import { workSpaceStore } from "@/entities/workSpcae"
@@ -9,7 +9,7 @@ import Button from "@/shared/ui/Button/Button"
 import { BsLayoutTextWindow, BsLayoutTextWindowReverse } from "react-icons/bs"
 import { HubParamsIds } from "@/features/hubs"
 
-export default () => {
+export default function ServerInfoPage() {
   const { channelId, workspaceId, hubId } = useParams<HubParamsIds>()
   const { hubs } = hubsStore()
   const { workSpaces } = workSpaceStore()

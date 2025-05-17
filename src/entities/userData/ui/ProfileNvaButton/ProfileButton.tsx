@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom"
+import { NavLink } from "react-router"
 import cls from "./ProfileButton.module.scss"
 import ProfileIcon from "@/shared/svg/AvatarUser.svg?react"
 import { classNames } from "@/shared/lib/classNames/classNames"

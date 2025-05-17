@@ -1,7 +1,14 @@
-import { chats } from "@/mock"
 import cls from "./ChatsList.module.scss"
-import { NavLink } from "react-router-dom"
+import { NavLink } from "react-router"
 import { classNames } from "@/shared/lib/classNames/classNames"
+
+const chats = [
+  {
+    id: 1,
+    name: "Chat 1",
+    image: "/chat1.png",
+  },
+]
 
 export const ChatsList = () => {
   return (

@@ -3,9 +3,14 @@ import Input from "@/shared/ui/Input/Input"
 import cls from "./LoginPage.module.scss"
 import Button from "@/shared/ui/Button/Button"
 import { loginAction } from "@/features/authentication/loginAction/loginAction"
-import { Link } from "react-router-dom"
+import { Link } from "react-router"
 
-export default () => {
+const randomToast = () => {
+  const toastTypes = ["success", "error", "info", "warning"]
+  return toastTypes[Math.floor(Math.random() * toastTypes.length)]
+}
+
+export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -17,7 +22,9 @@ export default () => {
       setError("All fields are required")
       return
     }
-    loginAction({ email, password })
+    loginAction({ email, password }).catch((error) => {
+      toast(error.message, randomToast())
+    })
   }
 
   return (

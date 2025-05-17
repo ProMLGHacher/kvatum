@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom"
+import { Outlet, useNavigate } from "react-router"
 import { useEffect, useRef } from "react"
 import { MainHeader } from "@/widgets/MainHeader"
 export default () => {

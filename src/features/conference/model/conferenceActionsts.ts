@@ -324,7 +324,9 @@ const handleUpdateOfferMessage = async (
     await conferenceStore
       .getState()
       .peers![from].pc.setRemoteDescription(new RTCSessionDescription(offer))
-    const answer = await conferenceStore.getState().peers![from].pc.createAnswer()
+    const answer = await conferenceStore
+      .getState()
+      .peers![from].pc.createAnswer()
     await conferenceStore.getState().peers![from].pc.setLocalDescription(answer)
     signallingChannelStore.getState().sendMessage({
       eventType: "UpdateAnswer",

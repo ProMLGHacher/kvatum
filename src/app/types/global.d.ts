@@ -1,9 +1,14 @@
+import { toast } from "@/shared/ui/Toast/model/toast"
+
 declare const _brand: unique symbol
 
 declare global {
   /**
    * Custom utility types
    */
+
+  export { toast }
+
   export type Nullable<T> = T | null
 
   export type Keys<T extends Record<string, unknown>> = keyof T

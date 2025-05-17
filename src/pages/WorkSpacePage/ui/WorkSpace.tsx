@@ -1,6 +1,6 @@
 import { WorkSpacesList } from "@/features/workSpaces/ui/WorkSpacesList/WorkSpacesList"
 import cls from "./WorkSpace.module.scss"
-import { useParams, Outlet } from "react-router-dom"
+import { useParams, Outlet } from "react-router"
 import { HubParamsIds } from "@/features/hubs/"
 
 export default () => {

@@ -1,6 +1,6 @@
 // ProtectedRoute.tsx
 import React from "react"
-import { Navigate, useSearchParams } from "react-router-dom"
+import { Navigate, useSearchParams } from "react-router"
 import { UserRole, userDataStore } from "@/entities/userData"
 
 interface ProtectedRouteProps {

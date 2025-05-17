@@ -3,7 +3,7 @@ import cls from "./MainHeader.module.scss"
 import { ProfileNvaButton } from "@/entities/userData"
 import { ChatsList } from "@/features/chats/ui/ChatsList"
 import { HubsList } from "@/features/hubs"
-import { useLocation } from "react-router-dom"
+import { useLocation } from "react-router"
 import {
   AudioEffect,
   VideoEffect,

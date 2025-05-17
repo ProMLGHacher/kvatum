@@ -1,5 +1,5 @@
 import cls from "./WorkSpacesList.module.scss"
-import { NavLink, useParams } from "react-router-dom"
+import { NavLink, useParams } from "react-router"
 import { classNames } from "@/shared/lib/classNames/classNames"
 import { workSpaceStore } from "@/entities/workSpcae"
 import { CreateWorkSpaceButton } from "../CreateWorkSpaceButton/CreateWorkSpaceButton"

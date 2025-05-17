@@ -1,7 +1,7 @@
 import { tokensDataStore } from "@/entities/tokensData"
 import { acceptInviteAction } from "@/features/hubs/model/acceptInvite/acceptInvite"
 import Button from "@/shared/ui/Button/Button"
-import { Navigate, useNavigate, useParams } from "react-router-dom"
+import { Navigate, useNavigate, useParams } from "react-router"
 
 export default () => {
   const { inviteHash } = useParams()

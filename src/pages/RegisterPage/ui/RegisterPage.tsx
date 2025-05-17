@@ -6,7 +6,7 @@ import { isActionError } from "@/shared/types/actionErrorType/ActionError"
 import { isAxiosError } from "axios"
 import { registerAction } from "@/features/authentication/registerAction/registerAction"
 import { requestRegistrationAction } from "@/features/authentication/requestRegistrationAction/requestRegistrationAction"
-import { Link } from "react-router-dom"
+import { Link } from "react-router"
 
 export default () => {
   const [email, setEmail] = useState("")

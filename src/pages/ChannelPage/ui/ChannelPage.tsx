@@ -1,5 +1,5 @@
 import { classNames } from "@/shared/lib/classNames/classNames"
-import { NavLink, Outlet, useParams } from "react-router-dom"
+import { NavLink, Outlet, useParams } from "react-router"
 import cls from "./ChannelPage.module.scss"
 import { channelsStore } from "@/entities/channels/model/channelsStore"
 import { connectToConferenceAction } from "@/features/conference/model/conferenceActionsts"

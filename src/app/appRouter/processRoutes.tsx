@@ -1,4 +1,4 @@
-import { RouteObject } from "react-router-dom"
+import { RouteObject } from "react-router"
 import { Route } from "./types"
 import ProtectedRoute from "./ProtectedRoute"
 
