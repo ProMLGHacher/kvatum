@@ -1,5 +1,4 @@
 import { WorkSpaceId } from "@/entities/workSpcae"
-
 import { hubsStore } from "@/entities/hubs"
 import { getJoinedHubsAction } from "../getJoinedHubs/getJoinedHubs"
 import { getHubWorkSpacesAction } from "@/features/workSpaces/model/getHubWorkSpaces/getHubWorkSpaces"
@@ -14,16 +13,14 @@ export const initHubsDataAction = async () => {
       Object.values(hubs).map((hub) => getHubWorkSpacesAction(hub.id)),
     )
   }
-  const workSpaces = workSpaceStore.getState().workSpaces
-  const allWorkSpaces = workSpaces
-    ? Object.values(workSpaces)
-        .map((workSpace) => {
-          if (workSpace) {
-            return Object.keys(workSpace)
-          }
-        })
-        .flat()
-    : []
+  const workSpaces = workSpaceStore.getState().workSpaces ?? []
+  const allWorkSpaces = Object.values(workSpaces)
+    .map((workSpace) => {
+      if (workSpace) {
+        return Object.keys(workSpace)
+      }
+    })
+    .flat()
 
   if (allWorkSpaces) {
     try {

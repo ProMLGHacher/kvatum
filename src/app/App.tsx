@@ -25,6 +25,7 @@ export const App = () => {
       try {
         await getUserAction()
       } catch (error) {
+        console.error(error)
         setLoading(false)
       }
     }
