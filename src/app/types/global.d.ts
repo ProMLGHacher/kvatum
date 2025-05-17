@@ -1,5 +1,3 @@
-import { toast } from "@/shared/ui/Toast/model/toast"
-
 declare const _brand: unique symbol
 
 declare global {
@@ -7,7 +5,11 @@ declare global {
    * Custom utility types
    */
 
-  export { toast }
+  export function toast(
+    message: string,
+    type?: ToastType,
+    duration?: ToastDuration,
+  )
 
   export type Nullable<T> = T | null
 

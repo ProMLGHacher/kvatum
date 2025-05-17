@@ -3,12 +3,11 @@ import cls from "./RegisterPage.module.scss"
 import Input from "@/shared/ui/Input/Input"
 import Button from "@/shared/ui/Button/Button"
 import { isActionError } from "@/shared/types/actionErrorType/ActionError"
-import { isAxiosError } from "axios"
 import { registerAction } from "@/features/authentication/registerAction/registerAction"
 import { requestRegistrationAction } from "@/features/authentication/requestRegistrationAction/requestRegistrationAction"
 import { Link } from "react-router"
 
-export default () => {
+export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [nickname, setNickname] = useState("")
   const [password, setPassword] = useState("")
@@ -30,11 +29,10 @@ export default () => {
       return
     }
     try {
-      requestRegistrationAction({ email, nickname, password }).then((_) =>
+      requestRegistrationAction({ email, nickname, password }).then(() =>
         setRequestedPassword(email),
       )
     } catch (error) {
-      isAxiosError
       if (isActionError(error)) {
         setError(error.message)
       }
@@ -49,11 +47,11 @@ export default () => {
       return
     }
     try {
-      registerAction({ email, verificationCode: code }).then((_) =>
-        setRequestedPassword(email),
-      )
+      registerAction({ email, verificationCode: code }).then(() => {
+        setRequestedPassword(email)
+        setCode("")
+      })
     } catch (error) {
-      isAxiosError
       if (isActionError(error)) {
         setError(error.message)
       }

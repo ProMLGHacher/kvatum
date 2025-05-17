@@ -1,7 +1,13 @@
 export class ActionError extends Error {
-  constructor(message: string = "Ошибка при выполнении действия") {
+  originalError?: unknown
+
+  constructor(
+    message: string = "Ошибка при выполнении действия",
+    originalError?: unknown,
+  ) {
     super(message)
     this.name = "ActionError"
+    this.originalError = originalError
   }
 }
 

@@ -1,13 +1,12 @@
 import { authApi, RequestToRegisterBody } from "@/entities/tokensData"
 import { ActionError } from "@/shared/types/actionErrorType/ActionError"
-import { AxiosResponse, isAxiosError } from "axios"
+import { isAxiosError } from "axios"
 
 export const requestRegistrationAction = async (
   requestRegistrationBody: RequestToRegisterBody,
-): Promise<AxiosResponse<any, any>> => {
+): Promise<void> => {
   try {
-    const response = await authApi.requestToRegister(requestRegistrationBody)
-    return response
+    await authApi.requestToRegister(requestRegistrationBody)
   } catch (error) {
     if (isAxiosError(error)) {
       console.error(error.response)

@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios"
 import {
   LoginBody,
   RefreshBody,
@@ -18,11 +17,8 @@ export const authApi = {
     const response = await $api.post<LoginDto>("/api/signin", body)
     return toTokensData(response.data)
   },
-  requestToRegister: async (
-    body: RequestToRegisterBody,
-  ): Promise<AxiosResponse<any, any>> => {
-    const response = await $api.post("/api/signup/request", body)
-    return response
+  requestToRegister: async (body: RequestToRegisterBody): Promise<void> => {
+    await $api.post("/api/signup/request", body)
   },
   register: async (
     body: RegisterBody,
