@@ -1,6 +1,9 @@
+export type ConferenceUserId = Brand<string, "ConferenceUserId">
+export type PeerConnectionId = Brand<string, "PeerConnectionId">
+
 export type ConferenceUser = {
   email: string
-  id: string
+  id: ConferenceUserId
   images: string[]
   nickname: string
   role: string
@@ -9,7 +12,7 @@ export type ConferenceUser = {
 }
 
 export type PeerConnection = {
-  id: string
+  id: PeerConnectionId
   state: "pending" | "connected"
   pc: RTCPeerConnection
   videoTrack: MediaStreamTrack | null

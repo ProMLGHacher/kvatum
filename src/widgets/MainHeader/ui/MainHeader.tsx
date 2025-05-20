@@ -1,54 +1,54 @@
-import { mediaStreamStore } from "@/entities/mediaStream"
 import cls from "./MainHeader.module.scss"
 import { ProfileNvaButton } from "@/entities/userData"
 import { ChatsList } from "@/features/chats/ui/ChatsList"
 import { HubsList } from "@/features/hubs"
 import { useLocation } from "react-router"
-import {
-  AudioEffect,
-  VideoEffect,
-} from "@/entities/mediaStream/model/mediaStreamStore"
+// import { mediaStreamStore } from "@/entities/mediaStream"
+// import {
+//   AudioEffect,
+//   VideoEffect,
+// } from "@/entities/mediaStream/model/mediaStreamStore"
 
-const audioGainEffect: AudioEffect = {
-  effect: (audioContext: AudioContext) => {
-    const gainNode = new GainNode(audioContext)
-    gainNode.gain.value = 0.2
-    return gainNode
-  },
-  name: "audioGainEffect",
-}
+// const audioGainEffect: AudioEffect = {
+//   effect: (audioContext: AudioContext) => {
+//     const gainNode = new GainNode(audioContext)
+//     gainNode.gain.value = 0.2
+//     return gainNode
+//   },
+//   name: "audioGainEffect",
+// }
 
-const videoEffect: VideoEffect = {
-  effect: (ctx: CanvasRenderingContext2D | null) => {
-    if (!ctx) return
-    ctx.fillStyle = "red"
-    ctx.fillRect(0, 0, ctx.canvas.width / 4, ctx.canvas.height / 4)
-  },
-  name: "videoEffect",
-}
+// const videoEffect: VideoEffect = {
+//   effect: (ctx: CanvasRenderingContext2D | null) => {
+//     if (!ctx) return
+//     ctx.fillStyle = "red"
+//     ctx.fillRect(0, 0, ctx.canvas.width / 4, ctx.canvas.height / 4)
+//   },
+//   name: "videoEffect",
+// }
 
 export const MainHeader = () => {
   const { pathname } = useLocation()
   const isChatsPage = pathname.includes("/main/chats")
 
-  const {
-    audioDevices,
-    videoDevices,
-    setAudioDevice,
-    setVideoDevice,
-    selectedAudioDevice,
-    selectedVideoDevice,
-    audioEffects,
-    addAudioEffect,
-    removeAudioEffect,
-    addVideoEffect,
-    removeVideoEffect,
-    videoEffects,
-  } = mediaStreamStore()
+  // const {
+  //   audioDevices,
+  //   videoDevices,
+  //   setAudioDevice,
+  //   setVideoDevice,
+  //   selectedAudioDevice,
+  //   selectedVideoDevice,
+  //   audioEffects,
+  //   addAudioEffect,
+  //   removeAudioEffect,
+  //   addVideoEffect,
+  //   removeVideoEffect,
+  //   videoEffects,
+  // } = mediaStreamStore()
 
   return (
     <>
-      <div style={{ display: "flex", gap: "10px" }}>
+      {/* <div style={{ display: "flex", gap: "10px" }}>
         <button
           style={{
             padding: "10px",
@@ -181,7 +181,7 @@ export const MainHeader = () => {
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
       <nav className={cls.mainHeader}>
         <ProfileNvaButton />
         {isChatsPage ? <ChatsList /> : <HubsList />}

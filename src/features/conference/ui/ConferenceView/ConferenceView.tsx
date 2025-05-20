@@ -32,15 +32,8 @@ export const ConferenceView = ({ channel }: ConferenceViewProps) => {
       {conferenceIsOpen && (
         <div className={cls.conference}>
           {!roomId && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-              }}
-            >
-              Войтиде в конференцию чтобы увидеть плитки
+            <div className={cls.conferenceEmpty}>
+              Войдите в конференцию чтобы увидеть плитки
             </div>
           )}
           {channel && <ConferencePreview channel={channel} />}

@@ -26,3 +26,11 @@
   cursor: ew-resize;
   background-color: transparent;
 }
+
+.conferenceEmpty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #fff;
+}

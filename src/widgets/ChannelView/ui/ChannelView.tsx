@@ -1,4 +1,4 @@
-import { Channel } from "@/features/channels"
+import { Channel } from "@/entities/channels"
 import { ConferenceView } from "@/features/conference"
 import { Chat } from "@/widgets/Chat"
 

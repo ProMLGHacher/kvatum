@@ -19,6 +19,7 @@ export const conferenceStore = create<Conference>((set, get) => ({
   removePeerConnection: (id) => {
     if (!get().peers) return
     set((state) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [id]: _, ...newState } = state.peers!
       return {
         peers: newState,
