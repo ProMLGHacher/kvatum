@@ -6,6 +6,8 @@ import { isActionError } from "@/shared/types/actionErrorType/ActionError"
 import { registerAction } from "@/features/authentication/registerAction/registerAction"
 import { requestRegistrationAction } from "@/features/authentication/requestRegistrationAction/requestRegistrationAction"
 import { Link } from "react-router"
+import { ToastType } from "@/shared/ui/Toast"
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction"
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("")
@@ -17,29 +19,47 @@ export default function RegisterPage() {
 
   const [requestedPassword, setRequestedPassword] = useState("")
   const [code, setCode] = useState("")
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const {
+    isLoading: isLoadingRequestRegistration,
+    execute: executeRequestRegistration,
+  } = useAsyncAction(requestRegistrationAction)
+
+  const { isLoading: isLoadingRegister, execute: executeRegister } =
+    useAsyncAction(registerAction)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
     if (!email || !nickname || !password) {
-      setError("All fields are required")
+      setError("Вы не заполнили все поля")
       return
     }
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
+      setError("Пароли не совпадают")
       return
     }
     try {
-      requestRegistrationAction({ email, nickname, password }).then(() =>
-        setRequestedPassword(email),
-      )
+      await executeRequestRegistration({ email, nickname, password })
+      setRequestedPassword(email)
     } catch (error) {
       if (isActionError(error)) {
-        setError(error.message)
+        toast(
+          error.message,
+          error.errorLevel === "low" ? ToastType.WARNING : ToastType.ERROR,
+        )
+        return
       }
+      toast(
+        "Произошло чтото не хорошее :(\nПопробуйте перезагрузить страницу",
+        ToastType.ERROR,
+      )
     }
   }
 
-  const handleCompleteRegistration = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCompleteRegistration = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ) => {
     e.preventDefault()
     setError("")
     if (!code) {
@@ -47,14 +67,21 @@ export default function RegisterPage() {
       return
     }
     try {
-      registerAction({ email, verificationCode: code }).then(() => {
-        setRequestedPassword(email)
-        setCode("")
-      })
+      await executeRegister({ email, verificationCode: code })
+      setRequestedPassword(email)
+      setCode("")
     } catch (error) {
       if (isActionError(error)) {
-        setError(error.message)
+        toast(
+          error.message,
+          error.errorLevel === "low" ? ToastType.WARNING : ToastType.ERROR,
+        )
+        return
       }
+      toast(
+        "Произошло чтото не хорошее :(\nПопробуйте перезагрузить страницу",
+        ToastType.ERROR,
+      )
     }
     setError("")
   }
@@ -73,8 +100,8 @@ export default function RegisterPage() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
           />
-          <Button type="submit" full rounded="sm">
-            Register
+          <Button type="submit" full rounded="sm" disabled={isLoadingRegister}>
+            {isLoadingRegister ? "Loading..." : "Register"}
           </Button>
           {error && <div className={cls.error}>{error}</div>}
         </form>
@@ -111,8 +138,13 @@ export default function RegisterPage() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
-        <Button type="submit" full rounded="sm">
-          Register
+        <Button
+          type="submit"
+          full
+          rounded="sm"
+          disabled={isLoadingRequestRegistration}
+        >
+          {isLoadingRequestRegistration ? "Loading..." : "Register"}
         </Button>
         {error && <div className={cls.error}>{error}</div>}
       </form>

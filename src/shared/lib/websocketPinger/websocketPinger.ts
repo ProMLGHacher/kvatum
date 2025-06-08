@@ -1,4 +1,4 @@
-export const websocketPinger = (ws: WebSocket, controller: AbortController) => {
+export const websocketPinger = (ws: WebSocket, signal?: AbortSignal) => {
   const sendPing = () => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(
@@ -10,7 +10,7 @@ export const websocketPinger = (ws: WebSocket, controller: AbortController) => {
   }
 
   const intervalId = setInterval(sendPing, 3000)
-  controller.signal.addEventListener("abort", () => {
+  signal?.addEventListener("abort", () => {
     clearInterval(intervalId)
   })
 }

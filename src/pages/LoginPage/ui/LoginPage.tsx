@@ -4,27 +4,39 @@ import cls from "./LoginPage.module.scss"
 import Button from "@/shared/ui/Button/Button"
 import { loginAction } from "@/features/authentication/loginAction/loginAction"
 import { Link } from "react-router"
-
-const randomToast = () => {
-  const toastTypes = ["success", "error", "info", "warning"]
-  return toastTypes[Math.floor(Math.random() * toastTypes.length)]
-}
+import { ToastType } from "@/shared/ui/Toast"
+import { isActionError } from "@/shared/types/actionErrorType/ActionError"
+import { useAsyncAction } from "@/shared/hooks/useAsyncAction"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const { isLoading, execute: executeLogin } = useAsyncAction(loginAction)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
     if (!email || !password) {
       setError("All fields are required")
       return
     }
-    loginAction({ email, password }).catch((error) => {
-      toast(error.message, randomToast())
-    })
+    try {
+      await executeLogin({ email, password })
+    } catch (error) {
+      if (isActionError(error)) {
+        toast(
+          error.message,
+          error.errorLevel === "low" ? ToastType.WARNING : ToastType.ERROR,
+        )
+        return
+      }
+      toast(
+        "Произошло чтото не хорошее :(\nПопробуйте перезагрузить страницу",
+        ToastType.ERROR,
+      )
+    }
   }
 
   return (
@@ -45,8 +57,8 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <Button type="submit" full rounded="sm">
-          Login
+        <Button type="submit" full rounded="sm" disabled={isLoading}>
+          {isLoading ? "Loading..." : "Login"}
         </Button>
         {error && <div className={cls.error}>{error}</div>}
       </form>

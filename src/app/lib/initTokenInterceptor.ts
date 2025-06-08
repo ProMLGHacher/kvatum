@@ -3,6 +3,8 @@ import { logOutAction } from "@/features/authentication/logOutAction/logOutActio
 import { $api } from "@/shared/api/api"
 import { isAxiosError } from "axios"
 
+const E_TAG = "INTERCEPTOR" as const
+
 export const configureTokenInterceptors = () => {
   $api.interceptors.request.use((config) => {
     const token = tokensDataStore.getState().accessToken
@@ -19,7 +21,7 @@ export const configureTokenInterceptors = () => {
       const originalRequest = error.config
       const refToken = tokensDataStore.getState().refreshToken
 
-      if (error.response.status === 401 && !originalRequest._retry) {
+      if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true
 
         if (!refToken) {
@@ -31,7 +33,7 @@ export const configureTokenInterceptors = () => {
           const tokensData = await authApi.refresh({ refreshToken: refToken })
           tokensDataStore.getState().setTokensData(tokensData)
 
-          originalRequest.headers.Authorization = `${tokensDataStore.getState().accessToken}`
+          originalRequest.headers.Authorization = `${tokensData.accessToken}`
           return $api(originalRequest)
         } catch (error) {
           if (isAxiosError(error)) {
@@ -41,6 +43,7 @@ export const configureTokenInterceptors = () => {
             }
           } else {
             await logOutAction()
+            console.error(`${E_TAG}: error in refresh token`, error)
             throw new Error("unknown error")
           }
         }

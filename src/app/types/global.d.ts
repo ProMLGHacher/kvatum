@@ -1,9 +1,18 @@
+import {
+  ToastType as ToastTypeEnum,
+  ToastDuration as ToastDurationEnum,
+} from "@/shared/ui/Toast/model/types"
+
 declare const _brand: unique symbol
 
 declare global {
   /**
    * Custom utility types
    */
+
+  // реализация toast лежит в src/shared/ui/Toast/
+  export type ToastType = ToastTypeEnum
+  export type ToastDuration = ToastDurationEnum
 
   export function toast(
     message: string,

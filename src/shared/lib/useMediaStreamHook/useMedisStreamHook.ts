@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export const mediaStreamStoreHook = (
+export const useMediaStreamStore = (
   defaultConstraints: MediaStreamConstraints = { video: true, audio: true },
 ) => {
   const [stream, setStream] = useState<MediaStream | null>(null)

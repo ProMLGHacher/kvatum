@@ -26,7 +26,7 @@ export const signallingChannelStore = create<SignallingChannelState>(
                   eventBody: tokensDataStore.getState().accessToken,
                 }),
               )
-              websocketPinger(signallingChannel, controller)
+              websocketPinger(signallingChannel, controller.signal)
               set({ signallingChannel })
               resolve()
             },
@@ -44,12 +44,12 @@ export const signallingChannelStore = create<SignallingChannelState>(
           set({ isLoading: false })
         }
       }),
-    onMessage: (callback: (event: Record<string, any>) => void) => {
+    onMessage: (callback: (event: Record<string, unknown>) => void) => {
       get().signallingChannel?.addEventListener("message", (event) => {
         callback(JSON.parse(event.data))
       })
     },
-    sendMessage: (message: Record<string, any>) => {
+    sendMessage: (message: Record<string, unknown>) => {
       const signallingChannel = get().signallingChannel
       if (!signallingChannel) return
       signallingChannel.send(JSON.stringify(message))

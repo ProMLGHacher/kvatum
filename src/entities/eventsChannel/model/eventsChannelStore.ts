@@ -9,8 +9,9 @@ export const eventsChannelStore = create<EventsChannelState>((set, get) => ({
   isLoading: true,
   connect: async () => {
     set({ isLoading: true })
-    if (get().eventsChannel) {
-      get().eventsChannel?.close()
+    const previousEventsChannel = get().eventsChannel
+    if (previousEventsChannel) {
+      previousEventsChannel.close()
     }
     try {
       const eventsChannel = new WebSocket($baseURL + "/ws/events")
@@ -24,7 +25,7 @@ export const eventsChannelStore = create<EventsChannelState>((set, get) => ({
               eventBody: tokensDataStore.getState().accessToken,
             }),
           )
-          websocketPinger(eventsChannel, controller)
+          websocketPinger(eventsChannel, controller.signal)
           set({ eventsChannel })
         },
         { signal: controller.signal },
@@ -44,12 +45,12 @@ export const eventsChannelStore = create<EventsChannelState>((set, get) => ({
       set({ isLoading: false })
     }
   },
-  onMessage: (callback: (event: Record<string, any>) => void) => {
+  onMessage: (callback: (event: Record<string, unknown>) => void) => {
     get().eventsChannel?.addEventListener("message", (event) => {
       callback(JSON.parse(event.data))
     })
   },
-  sendMessage: (message: Record<string, any>) => {
+  sendMessage: (message: Record<string, unknown>) => {
     const eventsChannel = get().eventsChannel
     if (!eventsChannel) return
     eventsChannel.send(JSON.stringify(message))

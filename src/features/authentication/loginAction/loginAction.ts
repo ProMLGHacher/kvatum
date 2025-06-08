@@ -3,6 +3,8 @@ import { userApi, userDataStore } from "@/entities/userData"
 import { ActionError } from "@/shared/types/actionErrorType/ActionError"
 import { isAxiosError } from "axios"
 
+const E_TAG = "TAG_LOGIN_ACTION"
+
 export const loginAction = async (loginBody: LoginBody) => {
   try {
     const tokensData = await authApi.login(loginBody)
@@ -11,14 +13,26 @@ export const loginAction = async (loginBody: LoginBody) => {
     userDataStore.getState().setUserData(userData)
   } catch (error) {
     if (isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        throw new ActionError("Не верный логин или пароль")
+      const statusCode = error.response?.status
+      if (statusCode && statusCode >= 400 && statusCode < 500) {
+        throw new ActionError("Не верный логин или пароль", {
+          errorLevel: "low",
+        })
       }
-      throw new ActionError(error.message)
-    } else {
-      throw new ActionError(
-        "Чтото пошло не так попробуйте перезагрузить страницу",
-      )
+      console.warn(E_TAG, "LEVEL: MEDIUM", error)
+      throw new ActionError(error.message, {
+        errorLevel: "medium",
+        originalError: error,
+      })
     }
+
+    console.error(E_TAG, "LEVEL: HIGH", error)
+    throw new ActionError(
+      "Чтото пошло не так попробуйте перезагрузить страницу",
+      {
+        errorLevel: "high",
+        originalError: error,
+      },
+    )
   }
 }

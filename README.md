@@ -1,7 +1,11 @@
-# Tauri + React + Typescript
+## Code Style Соглашения
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+В этом проекте мы придерживаемся следующих код стайл соглашений:
 
-## Recommended IDE Setup
+1. **Константы для тегов ошибок**:
+   - Все теги для ошибок в консоль должны быть определены как константы.
+   - Используйте формат `E_TAG` для именования констант.
+   - Каждая константа должна иметь уникальный тег, относящийся к конкретному модулю.
+   - Это позволяет легко находить место ошибки по тегу и удобно для метрик ошибок.
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+Следуя этим соглашениям, мы обеспечиваем единообразие и читаемость кода в проекте.

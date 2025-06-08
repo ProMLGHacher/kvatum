@@ -7,16 +7,16 @@ export const initToast = (toast: ToastContextType["addToast"]) => {
 }
 
 export const getDuration = (duration: ToastDuration) => {
-  if (duration === "short") return 1000
-  if (duration === "medium") return 3000
-  if (duration === "long") return 5000
+  if (duration === ToastDuration.SHORT) return 1500
+  if (duration === ToastDuration.MEDIUM) return 3000
+  if (duration === ToastDuration.LONG) return 5000
   return 3000
 }
 
 export function toast(
   message: string,
-  type?: ToastType,
-  duration?: ToastDuration,
+  type: ToastType = ToastType.INFO,
+  duration: ToastDuration = ToastDuration.MEDIUM,
 ) {
   if (toastFunction) {
     toastFunction(message, type, duration)
